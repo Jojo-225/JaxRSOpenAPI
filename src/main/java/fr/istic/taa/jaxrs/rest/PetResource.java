@@ -9,14 +9,16 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import fr.istic.taa.jaxrs.dao.PetDao;
 
 @Path("pet")
 @Produces({"application/json", "application/xml"})
 public class PetResource {
+  private final PetDao dao = new PetDao();
 
   @GET
   @Path("/{petId}")
-  public Pet getPetById(@PathParam("petId") Long petId)  {
+  public Pet getPetById(@PathParam("petId") Long id)  {
       // return pet
       return new Pet();
   }
@@ -30,9 +32,9 @@ public class PetResource {
   
   @POST
   @Consumes("application/json")
-  public Response addPet(
-      @Parameter(description = "Pet object that needs to be added to the store", required = true) Pet pet) {
-    // add pet
-    return Response.ok().entity("SUCCESS").build();
+  public Response createPet(Pet pet){
+    dao.save(pet);
+    return Response.status(Response.Status.CREATED).entity(pet).build();
   }
+  
 }

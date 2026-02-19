@@ -26,7 +26,7 @@ public class RestServer {
                         .addHttpListener(8080, "localhost")
 
         );
-
+        
         logger.info("JAX-RS based micro-service running!");
     }
 }
