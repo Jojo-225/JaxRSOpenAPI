@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 
 @Entity
-public class Artist {
+public class Artist implements Serializable {
     private Long id;
     private String name;
     private List<Concert> concerts = new ArrayList<>();

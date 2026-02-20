@@ -11,9 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.io.Serializable;
 
 @Entity
-public class Concert {
+public class Concert implements Serializable {
     
     private Long id;
     private String topic;

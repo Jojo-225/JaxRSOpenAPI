@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.domain;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -15,7 +16,7 @@ import jakarta.persistence.InheritanceType;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="dtype")
 
-public class User {
+public class User  implements Serializable{
     protected Long id;
     protected String lastName;
     protected String firstName;

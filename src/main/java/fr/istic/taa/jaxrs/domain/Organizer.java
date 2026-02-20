@@ -2,6 +2,7 @@ package fr.istic.taa.jaxrs.domain;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
@@ -10,7 +11,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("ORGANIZER")
-public class Organizer extends User {
+public class Organizer extends User implements Serializable {
     private List<Concert> concertsOrganised = new ArrayList<>();
 
     public Organizer() {

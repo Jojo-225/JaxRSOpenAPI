@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Ticket {
+public class Ticket  implements Serializable{
     private Long id;
     private String title;
     private int capacity;
