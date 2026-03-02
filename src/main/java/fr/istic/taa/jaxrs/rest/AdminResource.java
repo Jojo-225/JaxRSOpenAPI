@@ -12,20 +12,23 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.core.Response;
+import fr.istic.taa.jaxrs.service.AdminService;
+
 
 @Path("admin")
 @Produces({"application/json"})
 public class AdminResource {
     private final AdminDao dao = new AdminDao();
+    private final AdminService adminService = new AdminService();
 
     @GET    
     @Path("/{id}")
-    public Admin getAdminById(Long id) {
-        Admin a = dao.findOne(id);
+    public Response getById(Long id) {
+        Admin a = adminService.getById(id);
         if (a == null) {
-            throw new RuntimeException("Admin not found for id: " + id);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return a;
+        return Response.status(Response.Status.OK).entity(a).build();
     }
     
     @GET
@@ -36,7 +39,7 @@ public class AdminResource {
     
     @POST
     public Response createAdmin(Admin admin) {
-        dao.save(admin);
+        adminService.create(admin);
         return Response.created(URI.create("/admin/"+admin.getId())).entity(admin).build();
     }
 
