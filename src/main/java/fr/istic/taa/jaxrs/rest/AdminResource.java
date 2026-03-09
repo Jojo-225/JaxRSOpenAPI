@@ -46,23 +46,24 @@ public class AdminResource {
     @PUT
     @Path("/{id}")
     public Admin updateAdmin(Long id, Admin admin) {
-        Admin existingAdmin = dao.findOne(id);
+        Admin existingAdmin = adminService.getById(id);
         if (existingAdmin == null) {
             throw new RuntimeException("Admin not found for id: " + id);
         }
         admin.setId(id);
-        dao.update(admin);
+        adminService.update(admin);
         return admin;
     }
 
     @DELETE
     @Path("/{id}")
-    public void deleteAdmin(Long id) {         
-        Admin existingAdmin = dao.findOne(id);
+    public Response deleteAdmin(Long id) {         
+        Admin existingAdmin = adminService.getById(id);
         if (existingAdmin == null) {
             throw new RuntimeException("Admin not found for id: " + id);
         }
-        dao.delete(existingAdmin);
+        adminService.delete(existingAdmin);
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
     
 }
