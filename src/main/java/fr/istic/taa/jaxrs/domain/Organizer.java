@@ -11,7 +11,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("ORGANIZER")
-public class Organizer extends User implements Serializable {
+public class Organizer extends User {
     private List<Concert> concertsOrganised = new ArrayList<>();
 
     public Organizer() {

@@ -38,6 +38,7 @@ public class AdminResource {
     }
     
     @POST
+    @Path("/create")
     public Response createAdmin(Admin admin) {
         adminService.create(admin);
         return Response.created(URI.create("/admin/"+admin.getId())).entity(admin).build();
