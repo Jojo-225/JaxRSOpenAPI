@@ -7,18 +7,15 @@ import fr.istic.taa.jaxrs.domain.*;
 import jakarta.persistence.EntityManager;
 
 import jakarta.persistence.EntityTransaction;
+
+import java.util.ArrayList;
+import java.util.List;
  
 import java.time.LocalDate;
 
 import java.time.LocalDateTime;
-
-import java.util.HashSet;
-
-import java.util.List;
-
-import java.util.Set;
-
 import java.util.logging.Logger;
+
  
 public class DataInitializer {
 
@@ -44,33 +41,34 @@ public class DataInitializer {
 
             // Création d'un concert + 2 tickets
 
-            Concert concert = createConcert();
-
+            Concert concert = createConcert("Concert de rock", LocalDateTime.now().plusDays(7), "Super concert!", null, null, null);
+            Customer customer1 = createCustomer("MARTIN", "Sophie","sophie.martin@yopmail.com", "password123", null);
+            Customer customer2 = createCustomer("DUPONT", "Michel","michel.dupont@yopmail.com", "password456", null);
             concert.setTickets(List.of(
 
-                    createTicket("A001", 42.0d, concert),
+                    createTicket("VIP",50,"libre", concert, List.of(customer1)),
 
-                    createTicket("E450", 37.5d, concert)
+                    createTicket("VIP",50,"libre", concert, List.of(customer1))
 
             ));
 
             // Artistes
 
-            var artistes = createArtistes();
+            var artist = createArtist("The Rolling Stones", List.of(concert));
 
-            artistes.forEach(manager::persist);
-
-            concert.getArtistes().addAll(artistes);
+            manager.persist(artist);
+            
+            concert.getArtists().add(artist);
 
             manager.persist(concert);
  
-            // Création utilisateurs
+            // Création userisateurs
 
-            manager.persist(createAdministrateur());
+            manager.persist(createAdmin());
 
-            manager.persist(createOrganisateur());
+            manager.persist(createOrganizer());
 
-            manager.persist(createUtilisateur());
+            manager.persist(createUser());
 
         } catch (Exception e) {
 
@@ -84,145 +82,120 @@ public class DataInitializer {
 
     }
  
-    private Set<Artiste> createArtistes() {
+    private Artist createArtist(String name, List<Concert> concerts) {
 
-        Set<Artiste> artistes = new HashSet<>();
+        Artist artist = new Artist(name, concerts);
 
-        {
+        artist.setName("The Rolling Stones");
 
-            Artiste artiste = new Artiste();
+       artist.setConcerts(concerts);
 
-            artiste.setNomScene("Machin");
+        
 
-            artiste.setNationalite("française");
-
-            artiste.setPopularite(3);
-
-            artiste.setSiteWeb("https://machin.co/tournee");
-
-            artiste.setDateNaissance(LocalDate.of(2001, 3, 6));
-
-            artistes.add(artiste);
-
-        }
-
-        {
-
-            Artiste artiste = new Artiste();
-
-            artiste.setNomScene("Truc");
-
-            artiste.setNationalite("anglaise");
-
-            artiste.setPopularite(4);
-
-            artiste.setDateNaissance(LocalDate.of(1997, 9, 16));
-
-            artistes.add(artiste);
-
-        }
-
-        return artistes;
+        return artist;
 
     }
  
-    private Utilisateur createUtilisateur() {
+    private User createUser() {
 
-        Utilisateur util = new Utilisateur();
+        User user = new User();
 
-        util.setNom("DUPONT");
+        user.setLastName("DUPONT");
 
-        util.setPrenom("Michel");
+        user.setFirstName("Michel");
 
-        util.setDateNaissance(LocalDate.of(1990, 1, 1));
+        user.setDateOfBirth(LocalDate.of(1990, 1, 1));
 
-        util.setEmail("michel.dupont@yopmail.com");
+        user.setMail("michel.dupont@yopmail.com");
 
-        util.setDateInscription(LocalDate.now());
+        user.setPassword("password123");
 
-        util.setCreditCompte(45.0d);
-
-        util.setPreferenceNotificationEmail(false);
-
-        util.setPreferenceNotificationPush(true);
-
-        return util;
+        return user;
 
     }
  
-    private Administrateur createAdministrateur() {
+    private Admin createAdmin() {
 
-        Administrateur admin = new Administrateur();
+        Admin admin = new Admin();
 
-        admin.setNom("LECHEF");
+        admin.setLastName("LECHEF");
 
-        admin.setPrenom("Baptiste");
+        admin.setFirstName("Baptiste");
 
-        admin.setDateNaissance(LocalDate.of(1980, 7, 25));
+        admin.setDateOfBirth(LocalDate.of(1980, 7, 25));
 
-        admin.setEmail("baptiste.lechef@yopmail.com");
+        admin.setMail("baptiste.lechef@yopmail.com");
  
-        admin.setActif(true);
-
-        admin.setDateNomination(LocalDate.of(2025, 12, 31));
+        admin.setPassword("adminpass456");
 
         return admin;
 
     }
  
-    private Organisateur createOrganisateur() {
+    private Organizer createOrganizer() {
 
-        Organisateur orga = new Organisateur();
+        Organizer organizer = new Organizer();
 
-        orga.setNom("COMBOURG");
+        organizer.setLastName("COMBOURG");
 
-        orga.setPrenom("Adeline");
+        organizer.setFirstName("Adeline");
 
-        orga.setDateNaissance(LocalDate.of(1990, 3, 17));
+        organizer.setDateOfBirth(LocalDate.of(1990, 3, 17));
 
-        orga.setEmail("adeline.combourg2@yopmail.com");
+        organizer.setMail("adeline.combourg2@yopmail.com");
  
-        orga.setActif(true);
+        organizer.setPassword("organizerpass789");
 
-        orga.setNomStructure("Rock en scène");
-
-        orga.setNumeroSiret("523 299 410 00531");
-
-        orga.setAdresseSiege("18, chemin de Faivre, 89731 AUBERT");
-
-        return orga;
-
+        return organizer;
     }
  
-    private Concert createConcert() {
+    private Concert createConcert(String topic, LocalDateTime date, String description, Organizer organizer) {
 
-        Concert concert = new Concert();
+        Concert concert = new Concert(topic, date, description, organizer);
 
-        concert.setCapacite(50L);
+        concert.setTopic("Concert de rock");
 
         concert.setDate(LocalDateTime.now().plusDays(7));
 
-        concert.setPopularite(3.5f);
-
-        concert.setGenre("VARIETE");
-
         concert.setDescription("Super concert!");
+
+        concert.setOrganizer(organizer);
+
+        concert.addTicket();
+
+        concert.addArtist(artists);
 
         return concert;
 
     }
- 
-    private Ticket createTicket(String numeroPlace, Double prixUnitaire, Concert concert) {
+    private Customer createCustomer(String lastName, String firstName, String mail, String password, List<Ticket> tickets) {
+       
+        Customer customer = new Customer(lastName, firstName, mail, password, tickets);
+        
+        customer.setLastName("MARTIN");
 
-        Ticket ticket = new Ticket("A001", 42.0d, concert);
+        customer.setFirstName("Sophie");
 
-        ticket.setNumeroPlace(numeroPlace);
+        customer.setDateOfBirth(LocalDate.of(1995, 5, 10));
 
-        ticket.setPrixUnitaire(prixUnitaire);
+        customer.setMail("sophie.martin@yopmail.com");
 
-        ticket.setStatut(StatutTicketEnum.ACHETE);
+        return customer;
+    
 
-        ticket.setDateAchat(LocalDateTime.now());
+    }
+
+    private Ticket createTicket(String title, int capacity, String statut, Concert concert, List<Customer> customers) {
+
+        Ticket ticket = new Ticket("VIP",50,"libre", concert, customers);
+
+        ticket.setTitle(title);
+
+        ticket.setCapacity(capacity);
+
+        ticket.setStatut(statut);
+        
+        ticket.setConcert(concert);
 
         return ticket;
 

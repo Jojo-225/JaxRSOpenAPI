@@ -2,7 +2,6 @@ package fr.istic.taa.jaxrs.domain;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.Serializable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;

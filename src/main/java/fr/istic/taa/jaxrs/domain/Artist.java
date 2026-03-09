@@ -16,7 +16,9 @@ public class Artist implements Serializable {
     private String name;
     private List<Concert> concerts = new ArrayList<>();
 
-    public Artist() {
+    public Artist( String name, List<Concert> concerts) {
+        this.name = name;
+        this.concerts = concerts;
     }
 
     public Artist(String name) {

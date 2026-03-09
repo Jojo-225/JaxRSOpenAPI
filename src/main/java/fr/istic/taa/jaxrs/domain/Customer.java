@@ -12,8 +12,9 @@ public class Customer extends User {
 
     private List<Ticket> tickets = new ArrayList<>();
     
-    public Customer(String lastName, String firstName, String mail, String password) {
+    public Customer(String lastName, String firstName, String mail, String password, List<Ticket> tickets) {
         super(lastName, firstName, null, mail, password);
+        this.tickets = tickets;
     }
 
     @ManyToMany(mappedBy = "customers")

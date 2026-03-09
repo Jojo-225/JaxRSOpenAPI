@@ -1,5 +1,4 @@
 package fr.istic.taa.jaxrs.domain;
-import java.io.Serializable;
 import java.time.LocalDate;
 
 import jakarta.persistence.DiscriminatorValue;

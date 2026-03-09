@@ -76,4 +76,11 @@ public class User  implements Serializable{
     public void setMail(String mail) {
         this.mail = mail;
     }
+    public String getPassword(){
+        return password;
+    }
+
+    public void setPassword(String password){
+        this.password=password;
+    }
 }

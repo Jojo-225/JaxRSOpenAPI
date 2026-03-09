@@ -23,11 +23,12 @@ public class Ticket  implements Serializable{
     public Ticket() {
     }
 
-    public Ticket(String title, int capacity, String statut, Concert concert) {
+    public Ticket(String title, int capacity, String statut, Concert concert, List<Customer> customers) {
         this.title = title;
         this.capacity = capacity;
         this.statut = statut;
         this.concert = concert;
+        this.customers = customers;
     }
     
     @Id
