@@ -13,6 +13,7 @@ import java.util.List;
 import fr.istic.taa.jaxrs.dao.TicketDao;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import jakarta.ws.rs.core.Response; 
+import jakarta.ws.rs.PathParam;
 
 @Path("/tickets")
 @Produces({"application/json"})
@@ -21,7 +22,8 @@ public class TicketResource {
     
     //Read One
     @GET
-    public  Ticket getTickets(Long id) {
+    @Path("/{id}")
+    public  Ticket getTickets(@PathParam("id") Long id) {
         Ticket t= dao.findOne(id);   
         if (t == null) {
             throw new RuntimeException("Ticket not found for id: " + id);
@@ -31,7 +33,7 @@ public class TicketResource {
 
     //Read All
     @GET
-    @Path("/{id}")
+    @Path("/all/{id}")
     public List<Ticket> getAllTicket() {
         return dao.findAll(); 
     }

@@ -13,9 +13,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.core.Response;
 import fr.istic.taa.jaxrs.service.AdminService;
+import jakarta.ws.rs.PathParam;
 
 
-@Path("admin")
+@Path("/admin")
 @Produces({"application/json"})
 public class AdminResource {
     private final AdminDao dao = new AdminDao();
@@ -23,7 +24,7 @@ public class AdminResource {
 
     @GET    
     @Path("/{id}")
-    public Response getById(Long id) {
+    public Response getById(@PathParam("id") Long id) {
         Admin a = adminService.getById(id);
         if (a == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

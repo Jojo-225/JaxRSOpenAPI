@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
+
+
  
 public class DataInitializer {
 
@@ -39,36 +41,63 @@ public class DataInitializer {
 
         try {
 
-            // Création d'un concert + 2 tickets
 
-            Concert concert = createConcert("Concert de rock", LocalDateTime.now().plusDays(7), "Super concert!", null, null, null);
-            Customer customer1 = createCustomer("MARTIN", "Sophie","sophie.martin@yopmail.com", "password123", null);
-            Customer customer2 = createCustomer("DUPONT", "Michel","michel.dupont@yopmail.com", "password456", null);
-            concert.setTickets(List.of(
 
-                    createTicket("VIP",50,"libre", concert, List.of(customer1)),
+            // // Création d'un concert + 2 tickets
+            // createAdmin();
+    
+            // Concert concert = createConcert("Concert de rock", LocalDateTime.now().plusDays(7), "Super concert!", null);
+            // concert.setTickets(List.of(
 
-                    createTicket("VIP",50,"libre", concert, List.of(customer1))
+            //         createTicket("VIP",50,"libre", concert, List.of(customer1)),
 
-            ));
+            //         createTicket("VIP",50,"libre", concert, List.of(customer1))
 
-            // Artistes
+            // ));
 
-            var artist = createArtist("The Rolling Stones", List.of(concert));
+            // // Artistes
 
-            manager.persist(artist);
+            // var artist = createArtist("The Rolling Stones", List.of(concert));
+
+            // manager.persist(artist);
             
-            concert.getArtists().add(artist);
+            // concert.getArtists().add(artist);
 
-            manager.persist(concert);
+            // manager.persist(concert);
  
             // Création userisateurs
 
-            manager.persist(createAdmin());
+            // manager.persist(createAdmin());
 
-            manager.persist(createOrganizer());
+            // manager.persist(createOrganizer());
 
-            manager.persist(createUser());
+            // manager.persist(createUser());
+
+
+            for (int i = 0; i < 2; i++) {
+				Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);
+				manager.persist(admin);
+			}
+
+			for (int i = 0; i < 5; i++) {
+				Organizer organizer = new Organizer("organizer"+i, "organizer"+i, null, "organizer"+i+"@test.xyz", "password"+i);
+				manager.persist(organizer);
+
+				Concert concert = new Concert("Concert "+i, LocalDateTime.now(), "Description du concert "+i, organizer);
+				manager.persist(concert);
+
+				Artist artist = new Artist("Artist "+i);
+				artist.addConcert(concert);
+				manager.persist(artist);
+
+				Ticket ticket = new Ticket("Ticket standard", 100, "available", concert);
+				manager.persist(ticket);
+			}
+			
+			for (int i = 0; i < 50; i++) {
+				Customer customer = new Customer("CLName"+i, "CFName"+i, "customer"+i+"@test.xyz", "password");
+				manager.persist(customer);
+			}
 
         } catch (Exception e) {
 
@@ -116,6 +145,12 @@ public class DataInitializer {
  
     private Admin createAdmin() {
 
+        // for (int i = 0; i < 2; i++) {
+        //     Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);
+        //     manager.persist(admin);
+
+        // }
+
         Admin admin = new Admin();
 
         admin.setLastName("LECHEF");
@@ -161,16 +196,12 @@ public class DataInitializer {
 
         concert.setOrganizer(organizer);
 
-        concert.addTicket();
-
-        concert.addArtist(artists);
-
         return concert;
 
     }
-    private Customer createCustomer(String lastName, String firstName, String mail, String password, List<Ticket> tickets) {
+    private Customer createCustomer(String lastName, String firstName, String mail, String password) {
        
-        Customer customer = new Customer(lastName, firstName, mail, password, tickets);
+        Customer customer = new Customer(lastName, firstName, mail, password);
         
         customer.setLastName("MARTIN");
 
@@ -185,9 +216,9 @@ public class DataInitializer {
 
     }
 
-    private Ticket createTicket(String title, int capacity, String statut, Concert concert, List<Customer> customers) {
+    private Ticket createTicket(String title, int capacity, String statut, Concert concert ){
 
-        Ticket ticket = new Ticket("VIP",50,"libre", concert, customers);
+        Ticket ticket = new Ticket("VIP",50,"libre", concert);
 
         ticket.setTitle(title);
 
