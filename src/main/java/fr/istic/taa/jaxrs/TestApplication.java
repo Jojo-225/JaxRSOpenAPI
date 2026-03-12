@@ -34,7 +34,9 @@ public class TestApplication extends Application {
 	
     public TestApplication() {
         // Initialisation automatique au démarrage de l'app
-        DataInitializer.initialize();
+        if (DataInitializer.isEmpty()) {
+            DataInitializer.initialize();
+        }
     }
 
     @Override

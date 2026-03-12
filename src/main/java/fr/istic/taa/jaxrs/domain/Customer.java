@@ -11,6 +11,10 @@ import jakarta.persistence.ManyToMany;
 public class Customer extends User {
 
     private List<Ticket> tickets = new ArrayList<>();
+
+    public Customer() {
+        super();
+    }
     
     public Customer(String lastName, String firstName, String mail, String password) {
         super(lastName, firstName, null, mail, password);
