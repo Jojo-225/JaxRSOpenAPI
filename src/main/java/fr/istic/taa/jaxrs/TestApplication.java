@@ -19,10 +19,11 @@ package fr.istic.taa.jaxrs;
 import java.util.HashSet;
 import java.util.Set;
 
+import fr.istic.taa.jaxrs.rest.AdminResource;
+import fr.istic.taa.jaxrs.rest.ArtistResource;
 import fr.istic.taa.jaxrs.rest.ConcertResource;
 import fr.istic.taa.jaxrs.rest.CustomerResource;
 import fr.istic.taa.jaxrs.rest.OrganizerResource;
-import fr.istic.taa.jaxrs.rest.ArtistResource;
 import fr.istic.taa.jaxrs.rest.TicketResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.ApplicationPath;
@@ -31,17 +32,22 @@ import jakarta.ws.rs.core.Application;
 @ApplicationPath("/")
 public class TestApplication extends Application {
 	
+    public TestApplication() {
+        // Initialisation automatique au démarrage de l'app
+        DataInitializer.initialize();
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
 
-        final Set<Class<?>> clazzes = new HashSet<Class<?>>();
+        final Set<Class<?>> clazzes = new HashSet<>();
 
         clazzes.add(OpenApiResource.class);
+        clazzes.add(AdminResource.class);
+        clazzes.add(OrganizerResource.class);
+        clazzes.add(CustomerResource.class);
         clazzes.add(ConcertResource.class);
         clazzes.add(ArtistResource.class);
-        clazzes.add(CustomerResource.class);
-        clazzes.add(OrganizerResource.class);
         clazzes.add(TicketResource.class);
 //        clazzes.add(AcceptHeaderOpenApiResource.class);
          
