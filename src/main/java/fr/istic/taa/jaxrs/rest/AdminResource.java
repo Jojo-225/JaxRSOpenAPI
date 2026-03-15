@@ -1,7 +1,6 @@
 package fr.istic.taa.jaxrs.rest;
 
 import java.net.URI;
-import java.util.List;      
 
 import fr.istic.taa.jaxrs.dao.AdminDao;
 import fr.istic.taa.jaxrs.domain.Admin;

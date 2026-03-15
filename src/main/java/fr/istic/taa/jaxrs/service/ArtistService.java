@@ -2,30 +2,41 @@ package fr.istic.taa.jaxrs.service;
 
 import fr.istic.taa.jaxrs.dao.ArtistDao;
 import fr.istic.taa.jaxrs.domain.Artist;
+import fr.istic.taa.jaxrs.dto.CreateArtistDto;
+import fr.istic.taa.jaxrs.dto.UpdateArtistDto;
+
 import java.util.List;
 
 public class ArtistService {
-    public ArtistDao dao = new ArtistDao();
 
-    public Artist getById(Long id) {
-        Artist a = dao.findOne(id);
-        return a;   
+    private final ArtistDao artistDao = new ArtistDao();
+
+    public Artist createArtist(CreateArtistDto createArtistDto) {
+       Artist artist = new Artist(null);
+       artist.setName(createArtistDto.getName());
+       artistDao.save(artist);
+       return artist;
+
+    }
+
+    public Artist findOne(Long id){
+        return artistDao.findOne(id);
     }
     
-    public List<Artist> getAllArtists() {
-        return dao.findAll();
+    public List<Artist> findAll() {
+        return artistDao.findAll();
     }
 
-    public void create(Artist artist) {
-        dao.save(artist);
+
+
+    public Artist update(UpdateArtistDto updateArtistDto, Artist artist) {
+        artist.setName(updateArtistDto.getName());
+        return artistDao.update(artist);
     }
 
-    public void update(Artist artist) {
-        dao.update(artist);
-    }
 
     public void delete(Artist artist) {
-        dao.delete(artist);
+        artistDao.delete(artist);
     }
     
 }

@@ -1,8 +1,6 @@
 package fr.istic.taa.jaxrs;
  
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.logging.Logger;
 
 import fr.istic.taa.jaxrs.dao.generic.EntityManagerHelper;
@@ -12,7 +10,6 @@ import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
-import fr.istic.taa.jaxrs.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
