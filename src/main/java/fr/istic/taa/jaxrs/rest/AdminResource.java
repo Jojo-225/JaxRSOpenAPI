@@ -1,22 +1,22 @@
 package fr.istic.taa.jaxrs.rest;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 import java.net.URI;
 import java.util.List;      
+
 import fr.istic.taa.jaxrs.dao.AdminDao;
 import fr.istic.taa.jaxrs.domain.Admin;
+import fr.istic.taa.jaxrs.service.AdminService;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.core.Response;
-import fr.istic.taa.jaxrs.service.AdminService;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
 
 
-@Path("/admin")
+@Path("admin")
 @Produces({"application/json"})
 public class AdminResource {
     private final AdminDao dao = new AdminDao();

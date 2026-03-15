@@ -1,63 +1,114 @@
 package fr.istic.taa.jaxrs.rest;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import java.net.URI;
-import java.util.List;     
 
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
 import fr.istic.taa.jaxrs.domain.Organizer;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import fr.istic.taa.jaxrs.dto.CreateUserDto;
+import fr.istic.taa.jaxrs.service.OrganizerService;
+import fr.istic.taa.jaxrs.service.UserService;
+import fr.istic.taa.jaxrs.dto.UpdateUserDto;
 
 @Path("organizer")
 @Produces({"application/json"})
 public class OrganizerResource {
     private final OrganizerDao dao = new OrganizerDao();
+    private final OrganizerService organizerService = new OrganizerService();
+    private final UserService userService = new UserService();
     
     @GET
     @Path("/{id}")
-    public Organizer getOrganizerById(Long id) {
-        Organizer o = dao.findOne(id);
-        if (o == null) {
-            throw new RuntimeException("Organizer not found for id: " + id);                    
+    public Response getOrganizerById(@PathParam("id") Long id) {
+        try{
+            Organizer organizer = organizerService.findOne(id);
+            return Response.ok(organizer).build();
+            // throw new RuntimeException("Organizer not found for id: " + id);                    
+        }catch (RuntimeException e) {            
+            return Response.status(Response.Status.NOT_FOUND).entity("Organizer not found for id: " + id).build();
         }
-        return o;   
     }
 
     @GET
     @Path("/")
-    public List<Organizer> getAllOrganizers() {
-        return dao.findAll();       }       
-    
+    public Response getAllOrganizers() {
+        return Response.ok(organizerService.findAll()).build();
+    }
+
     @POST
-    public Response createOrganizer(Organizer organizer) {
-        dao.save(organizer);
-        return Response.created(URI.create("/organizer/"+organizer.getId())).entity(organizer).build();
+    public Response createOrganizer(CreateUserDto createOrganizerDto) {
+        if (userService.findByEmail(createOrganizerDto.getEmail()) != null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("An organizer with this email already exists").build();
+        }
+        try {
+            Organizer organizer = organizerService.createOrganizer(createOrganizerDto);
+            return Response.created(URI.create("/organizer/"+organizer.getId())).entity(organizer).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to create organizer").build();
+        }
     }
     
     @PUT
     @Path("/{id}")
-    public Organizer updateOrganizer(Long id, Organizer organizer) {
-        Organizer existingOrganizer = dao.findOne(id);
+    public Response updateOrganizer(@PathParam("id") Long id, UpdateUserDto updateOrganizerDto) {
+        Organizer existingOrganizer = organizerService.findOne(id);
         if (existingOrganizer == null) {
-            throw new RuntimeException("Organizer not found for id: " + id);    
-    }
-        organizer.setId(id);
-        dao.update(organizer);
-        return organizer;
+            return Response.status(Response.Status.NOT_FOUND).entity("Organizer not found for id: " + id).build();
+        }
+        try {
+            Organizer updatedOrganizer = organizerService.update(updateOrganizerDto, existingOrganizer);
+            return Response.ok(updatedOrganizer).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update organizer").build();
+        }
     }
 
+    public Response updateOrganizerEmail(@PathParam("id") Long id, String newEmail) {
+        Organizer existingOrganizer = organizerService.findOne(id);
+        if (existingOrganizer == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Organizer not found for id: " + id).build();
+        }
+        try {
+            Organizer updatedOrganizer = organizerService.updateEmail(newEmail, existingOrganizer);
+            return Response.ok(updatedOrganizer).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    /*
+    * Note: Deletion of an organizer is not allowed if there are concerts associated with it.
+    * This is to maintain data integrity and prevent orphaned concert records.
+    * Before deleting an organizer, we check if there are any concerts linked to it. If there are, we return a BAD_REQUEST response indicating that the organizer cannot be deleted until all associated concerts are removed or reassigned.
+    * This approach ensures that we do not end up with concerts that reference a non-existent organizer, which could lead to data inconsistencies and errors in the application.
+    * If there are no concerts associated with the organizer, we proceed with the deletion and return a NO_CONTENT response to indicate that the organizer was successfully deleted.
+    * This logic is implemented in the deleteOrganizer method, where we first check for the existence of the organizer and then verify if there are any associated concerts before performing the deletion.
+    * If the organizer is not found, we return a NOT_FOUND response. If there are associated concerts, we return a BAD_REQUEST response. If the deletion is successful, we return a NO_CONTENT response with a success message.
+     */
     @DELETE
     @Path("/{id}")
-    public void deleteOrganizer(Long id) {
-        Organizer existingOrganizer = dao.findOne(id);
+    public Response deleteOrganizer(@PathParam("id") Long id) {
+        Organizer existingOrganizer = organizerService.findOne(id);
         if (existingOrganizer == null) {
-            throw new RuntimeException("Organizer not found for id: " + id);    
+            return Response.status(Response.Status.NOT_FOUND).build();
+            // throw new RuntimeException("Organizer not found for id: " + id);    
         }
-        dao.delete(existingOrganizer);
+        if (!dao.findConcertsByOrganizerId(id).isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot delete organizer with associated concerts. Please remove or reassign the concerts first.").build();
+        }
+
+        try {
+            organizerService.delete(existingOrganizer);
+            return Response.noContent().entity("Organizer deleted successfully").build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to delete organizer").build();
+        }
     }
 }
