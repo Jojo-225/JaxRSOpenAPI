@@ -27,7 +27,7 @@ import fr.istic.taa.jaxrs.rest.TicketResource;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-
+import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 @ApplicationPath("/")
 public class TestApplication extends Application {
 	
@@ -36,7 +36,7 @@ public class TestApplication extends Application {
     public Set<Class<?>> getClasses() {
 
         final Set<Class<?>> clazzes = new HashSet<Class<?>>();
-
+        clazzes.add(ResteasyJackson2Provider.class);
         clazzes.add(OpenApiResource.class);
         clazzes.add(ConcertResource.class);
         clazzes.add(ArtistResource.class);

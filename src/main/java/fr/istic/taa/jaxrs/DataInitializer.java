@@ -8,10 +8,6 @@ import jakarta.persistence.EntityManager;
 
 import jakarta.persistence.EntityTransaction;
 
-import java.util.ArrayList;
-import java.util.List;
- 
-import java.time.LocalDate;
 
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
@@ -111,126 +107,126 @@ public class DataInitializer {
 
     }
  
-    private Artist createArtist(String name, List<Concert> concerts) {
+    // private Artist createArtist(String name, List<Concert> concerts) {
 
-        Artist artist = new Artist(name, concerts);
+    //     Artist artist = new Artist(name, concerts);
 
-        artist.setName("The Rolling Stones");
+    //     artist.setName("The Rolling Stones");
 
-       artist.setConcerts(concerts);
+    //    artist.setConcerts(concerts);
 
         
 
-        return artist;
+    //     return artist;
 
-    }
+    // }
  
-    private User createUser() {
+    // private User createUser() {
 
-        User user = new User();
+    //     User user = new User();
 
-        user.setLastName("DUPONT");
+    //     user.setLastName("DUPONT");
 
-        user.setFirstName("Michel");
+    //     user.setFirstName("Michel");
 
-        user.setDateOfBirth(LocalDate.of(1990, 1, 1));
+    //     user.setDateOfBirth(LocalDate.of(1990, 1, 1));
 
-        user.setMail("michel.dupont@yopmail.com");
+    //     user.setMail("michel.dupont@yopmail.com");
 
-        user.setPassword("password123");
+    //     user.setPassword("password123");
 
-        return user;
+    //     return user;
 
-    }
+    // }
  
-    private Admin createAdmin() {
+    // private Admin createAdmin() {
 
-        // for (int i = 0; i < 2; i++) {
-        //     Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);
-        //     manager.persist(admin);
+    //     // for (int i = 0; i < 2; i++) {
+    //     //     Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);
+    //     //     manager.persist(admin);
 
-        // }
+    //     // }
 
-        Admin admin = new Admin();
+    //     Admin admin = new Admin();
 
-        admin.setLastName("LECHEF");
+    //     admin.setLastName("LECHEF");
 
-        admin.setFirstName("Baptiste");
+    //     admin.setFirstName("Baptiste");
 
-        admin.setDateOfBirth(LocalDate.of(1980, 7, 25));
+    //     admin.setDateOfBirth(LocalDate.of(1980, 7, 25));
 
-        admin.setMail("baptiste.lechef@yopmail.com");
+    //     admin.setMail("baptiste.lechef@yopmail.com");
  
-        admin.setPassword("adminpass456");
+    //     admin.setPassword("adminpass456");
 
-        return admin;
+    //     return admin;
 
-    }
+    // }
  
-    private Organizer createOrganizer() {
+    // private Organizer createOrganizer() {
 
-        Organizer organizer = new Organizer();
+    //     Organizer organizer = new Organizer();
 
-        organizer.setLastName("COMBOURG");
+    //     organizer.setLastName("COMBOURG");
 
-        organizer.setFirstName("Adeline");
+    //     organizer.setFirstName("Adeline");
 
-        organizer.setDateOfBirth(LocalDate.of(1990, 3, 17));
+    //     organizer.setDateOfBirth(LocalDate.of(1990, 3, 17));
 
-        organizer.setMail("adeline.combourg2@yopmail.com");
+    //     organizer.setMail("adeline.combourg2@yopmail.com");
  
-        organizer.setPassword("organizerpass789");
+    //     organizer.setPassword("organizerpass789");
 
-        return organizer;
-    }
+    //     return organizer;
+    // }
  
-    private Concert createConcert(String topic, LocalDateTime date, String description, Organizer organizer) {
+    // private Concert createConcert(String topic, LocalDateTime date, String description, Organizer organizer) {
 
-        Concert concert = new Concert(topic, date, description, organizer);
+    //     Concert concert = new Concert(topic, date, description, organizer);
 
-        concert.setTopic("Concert de rock");
+    //     concert.setTopic("Concert de rock");
 
-        concert.setDate(LocalDateTime.now().plusDays(7));
+    //     concert.setDate(LocalDateTime.now().plusDays(7));
 
-        concert.setDescription("Super concert!");
+    //     concert.setDescription("Super concert!");
 
-        concert.setOrganizer(organizer);
+    //     concert.setOrganizer(organizer);
 
-        return concert;
+    //     return concert;
 
-    }
-    private Customer createCustomer(String lastName, String firstName, String mail, String password) {
+    // }
+    // private Customer createCustomer(String lastName, String firstName, String mail, String password) {
        
-        Customer customer = new Customer(lastName, firstName, mail, password);
+    //     Customer customer = new Customer(lastName, firstName, mail, password);
         
-        customer.setLastName("MARTIN");
+    //     customer.setLastName("MARTIN");
 
-        customer.setFirstName("Sophie");
+    //     customer.setFirstName("Sophie");
 
-        customer.setDateOfBirth(LocalDate.of(1995, 5, 10));
+    //     customer.setDateOfBirth(LocalDate.of(1995, 5, 10));
 
-        customer.setMail("sophie.martin@yopmail.com");
+    //     customer.setMail("sophie.martin@yopmail.com");
 
-        return customer;
+    //     return customer;
     
 
-    }
+    // }
 
-    private Ticket createTicket(String title, int capacity, String statut, Concert concert ){
+    // private Ticket createTicket(String title, int capacity, String statut, Concert concert ){
 
-        Ticket ticket = new Ticket("VIP",50,"libre", concert);
+    //     Ticket ticket = new Ticket("VIP",50,"libre", concert);
 
-        ticket.setTitle(title);
+    //     ticket.setTitle(title);
 
-        ticket.setCapacity(capacity);
+    //     ticket.setCapacity(capacity);
 
-        ticket.setStatut(statut);
+    //     ticket.setStatut(statut);
         
-        ticket.setConcert(concert);
+    //     ticket.setConcert(concert);
 
-        return ticket;
+    //     return ticket;
 
-    }
+    // }
 
 }
  

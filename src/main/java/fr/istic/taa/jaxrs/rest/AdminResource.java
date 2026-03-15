@@ -22,10 +22,13 @@ public class AdminResource {
     private final AdminDao dao = new AdminDao();
     private final AdminService adminService = new AdminService();
 
-    @GET    
+    @GET
     @Path("/{id}")
+    @Produces({"application/json"})
     public Response getById(@PathParam("id") Long id) {
+        System.out.println(">>> getById appelé avec id = " + id);
         Admin a = adminService.getById(id);
+        System.out.println(">>> admin trouvé = " + a);
         if (a == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -34,8 +37,14 @@ public class AdminResource {
     
     @GET
     @Path("/")
-    public List<Admin> getAllAdmins() {
-        return dao.findAll();
+    public Response getAllAdmins() {
+          try {
+        var admins = dao.findAll();
+        return Response.ok("nb admins = " + admins.size()).build();
+        } catch (Exception e) {
+        e.printStackTrace();
+        return Response.serverError().entity(e.toString()).build();
+        }
     }
     
     @POST

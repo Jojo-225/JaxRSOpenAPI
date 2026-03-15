@@ -13,6 +13,7 @@ import fr.istic.taa.jaxrs.dao.ConcertDao;
 import fr.istic.taa.jaxrs.domain.Concert;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.PathParam;
 
 
 @Path("/concerts")
@@ -24,7 +25,7 @@ public class ConcertResource {
     // Get One concert by id
     @GET    
     @Path("/{id}")
-    public Concert getConcert(Long id) {
+    public Concert getConcert(@PathParam("id") Long id) {
         Concert concert= dao.findOne(id);
         if (concert == null) {
             throw new RuntimeException("Concert not found for id: " + id);

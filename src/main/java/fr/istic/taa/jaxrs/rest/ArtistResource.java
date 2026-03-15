@@ -2,10 +2,10 @@ package fr.istic.taa.jaxrs.rest;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 
 import java.net.URI;
-import java.util.List;      
 
 import fr.istic.taa.jaxrs.dao.ArtistDao;
 import fr.istic.taa.jaxrs.domain.Artist;
@@ -23,7 +23,7 @@ public class ArtistResource {
     
     @GET    
     @Path("/{id}")
-    public Response getArtistById(Long id) {
+    public Response getArtistById(@PathParam("id") Long id) {
         Artist a = artistService.getById(id);
         if (a == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

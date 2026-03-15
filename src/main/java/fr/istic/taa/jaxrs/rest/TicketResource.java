@@ -15,7 +15,7 @@ import fr.istic.taa.jaxrs.domain.Ticket;
 import jakarta.ws.rs.core.Response; 
 import jakarta.ws.rs.PathParam;
 
-@Path("/tickets")
+@Path("tickets")
 @Produces({"application/json"})
 public class TicketResource {
     private final TicketDao dao = new TicketDao(); 
