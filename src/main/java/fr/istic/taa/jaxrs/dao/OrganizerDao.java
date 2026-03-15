@@ -11,6 +11,13 @@ public class OrganizerDao extends AbstractJpaDao <Long,Organizer>{
         this.setClazz(Organizer.class);
     }
 
+    public Organizer getByEmail(String email) {
+        return this.entityManager
+                .createQuery("SELECT o FROM Organizer o WHERE o.mail = :email", Organizer.class)
+                .setParameter("email", email)
+                .getSingleResult();
+    }
+
     public List<Concert> findConcertsByOrganizerId(Long organizerId) {
         return this.entityManager
                 .createQuery("SELECT c FROM Concert c WHERE c.organizer.id = :organizerId", Concert.class)
