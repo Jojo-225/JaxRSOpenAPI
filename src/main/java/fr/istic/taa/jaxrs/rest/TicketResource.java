@@ -8,12 +8,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
 import java.net.URI;
-import java.util.List;
 
 import fr.istic.taa.jaxrs.dao.TicketDao;
-import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
-import fr.istic.taa.jaxrs.dto.CreateArtistDto;
 import fr.istic.taa.jaxrs.dto.CreateTicketDto;
 import fr.istic.taa.jaxrs.dto.UpdateTicketDto;
 import fr.istic.taa.jaxrs.service.TicketService;
