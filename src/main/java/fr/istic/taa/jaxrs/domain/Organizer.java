@@ -3,6 +3,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ public class Organizer extends User {
     }
 
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Concert> getconcerts() {
         return concertsOrganised;
     }

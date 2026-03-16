@@ -16,9 +16,13 @@ import fr.istic.taa.jaxrs.dto.CreateUserDto;
 import fr.istic.taa.jaxrs.service.OrganizerService;
 import fr.istic.taa.jaxrs.service.UserService;
 import fr.istic.taa.jaxrs.dto.UpdateUserDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-@Path("organizer")
+@Path("/api/organizer")
 @Produces({"application/json"})
+@Tag(name = "Organizer", description = "API for managing organizers")
 public class OrganizerResource {
     private final OrganizerDao dao = new OrganizerDao();
     private final OrganizerService organizerService = new OrganizerService();
@@ -26,6 +30,10 @@ public class OrganizerResource {
     
     @GET
     @Path("/{id}")
+    @Operation(summary = "Get organizer by ID", description = "Returns a single organizer", responses = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Successful retrieval of organizer"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Organizer not found")
+    })
     public Response getOrganizerById(@PathParam("id") Long id) {
         try{
             Organizer organizer = organizerService.findOne(id);
@@ -38,11 +46,20 @@ public class OrganizerResource {
 
     @GET
     @Path("/")
+    @Operation(summary = "Get all organizers", description = "Returns a list of all organizers", responses = {
+        @ApiResponse(responseCode = "200", description = "Successful retrieval of organizers")
+    })
     public Response getAllOrganizers() {
         return Response.ok(organizerService.findAll()).build();
     }
 
     @POST
+    @Path("/")
+    @Operation(summary = "Create a new organizer", description = "Creates a new organizer", responses = {
+        @ApiResponse(responseCode = "201", description = "Organizer created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
+
     public Response createOrganizer(CreateUserDto createOrganizerDto) {
         if (userService.findByEmail(createOrganizerDto.getEmail()) != null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("An organizer with this email already exists").build();
@@ -57,6 +74,11 @@ public class OrganizerResource {
     
     @PUT
     @Path("/{id}")
+    @Operation(summary = "Update an existing organizer", description = "Updates an existing organizer", responses = {
+        @ApiResponse(responseCode = "200", description = "Organizer updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "404", description = "Organizer not found")
+    })
     public Response updateOrganizer(@PathParam("id") Long id, UpdateUserDto updateOrganizerDto) {
         Organizer existingOrganizer = organizerService.findOne(id);
         if (existingOrganizer == null) {
@@ -70,6 +92,13 @@ public class OrganizerResource {
         }
     }
 
+    @PUT
+    @Path("/{id}/updateEmail")
+    @Operation(summary = "Update an existing organizer's email", description = "Updates an existing organizer's email", responses = {
+        @ApiResponse(responseCode = "200", description = "Organizer email updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "404", description = "Organizer not found")
+    })
     public Response updateOrganizerEmail(@PathParam("id") Long id, String newEmail) {
         Organizer existingOrganizer = organizerService.findOne(id);
         if (existingOrganizer == null) {
@@ -94,6 +123,11 @@ public class OrganizerResource {
      */
     @DELETE
     @Path("/{id}")
+    @Operation(summary = "Delete an organizer", description = "Deletes an organizer if there are no associated concerts", responses = {
+        @ApiResponse(responseCode = "204", description = "Organizer deleted successfully"),
+        @ApiResponse(responseCode = "400", description = "Cannot delete organizer with associated concerts"),
+        @ApiResponse(responseCode = "404", description = "Organizer not found")
+    })
     public Response deleteOrganizer(@PathParam("id") Long id) {
         Organizer existingOrganizer = organizerService.findOne(id);
         if (existingOrganizer == null) {
@@ -103,7 +137,6 @@ public class OrganizerResource {
         if (!dao.findConcertsByOrganizerId(id).isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Cannot delete organizer with associated concerts. Please remove or reassign the concerts first.").build();
         }
-
         try {
             organizerService.delete(existingOrganizer);
             return Response.noContent().entity("Organizer deleted successfully").build();
