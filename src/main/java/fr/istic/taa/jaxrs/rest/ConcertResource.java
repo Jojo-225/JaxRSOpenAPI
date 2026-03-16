@@ -75,7 +75,7 @@ public class ConcertResource {
         }
         try{
             concertService.delete(existingConcert);
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot delete concert with associated Artist and Ticket. Please remove or reassign the Artist and Ticket first.").build();
+            return Response.noContent().entity("Ticket deleted successfully").build();
         }catch(RuntimeException e){
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to delete concert").build();
         }

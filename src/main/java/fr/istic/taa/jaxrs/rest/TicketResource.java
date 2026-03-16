@@ -11,7 +11,12 @@ import java.net.URI;
 import java.util.List;
 
 import fr.istic.taa.jaxrs.dao.TicketDao;
+import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
+import fr.istic.taa.jaxrs.dto.CreateArtistDto;
+import fr.istic.taa.jaxrs.dto.CreateTicketDto;
+import fr.istic.taa.jaxrs.dto.UpdateTicketDto;
+import fr.istic.taa.jaxrs.service.TicketService;
 import jakarta.ws.rs.core.Response; 
 import jakarta.ws.rs.PathParam;
 
@@ -19,52 +24,67 @@ import jakarta.ws.rs.PathParam;
 @Produces({"application/json"})
 public class TicketResource {
     private final TicketDao dao = new TicketDao(); 
-    
-    //Read One
+    private final TicketService ticketService = new TicketService();
+   
     @GET
     @Path("/{id}")
-    public  Ticket getTickets(@PathParam("id") Long id) {
-        Ticket t= dao.findOne(id);   
-        if (t == null) {
-            throw new RuntimeException("Ticket not found for id: " + id);
+    public Response getTicketById(@PathParam("id") Long id) {
+        try{
+            Ticket ticket = ticketService.findOne(id);
+            return Response.ok(ticket).build();
+            // throw new RuntimeException("Ticket not found for id: " + id);                    
+        }catch (RuntimeException e) {            
+            return Response.status(Response.Status.NOT_FOUND).entity("Ticket not found for id: " + id).build();
         }
-        return t;
     }
 
     //Read All
     @GET
-    @Path("/all/{id}")
-    public List<Ticket> getAllTicket() {
-        return dao.findAll(); 
+    @Path("/")
+    public Response getAllTicket() {
+        return Response.ok(ticketService.findAll()).build();
     }
 
     //Create
     @POST
-    public Response createTicket(Ticket ticket) {
-         dao.save(ticket);
+    public Response createTicket(CreateTicketDto createTicketDto) {
+        try{
+        Ticket ticket= ticketService.createTicket(createTicketDto);
          return Response.created(URI.create("/tickets/"+ticket.getId())).entity(ticket).build();
+        }catch(RuntimeException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to create Ticket").build();
+
+        }
     }
 
     @PUT
     @Path("/{id}")
-    public Ticket updateTicket(Long id, String ticket) {
+    public Response updateTicket(@PathParam("id") Long id, UpdateTicketDto updateTicketDto) {
         Ticket existingTicket = dao.findOne(id);
         if (existingTicket == null) {
-            throw new RuntimeException("Ticket not found for id: " + id);
+            return Response.status(Response.Status.NOT_FOUND).entity("Ticket not found for id: " + id).build();
         }
-        existingTicket.setId(id);
-        dao.update(existingTicket);
-        return existingTicket;
+           try {
+            Ticket updateTicket = ticketService.update(updateTicketDto, existingTicket);
+            return Response.ok(updateTicket).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update Ticket").build();
+        }
     }
 
     @DELETE
     @Path("/{id}")
-    public void deleteTicket(Long id) {
+    public Response deleteTicket (@PathParam("") Long id) {
         Ticket existingTicket = dao.findOne(id);
         if (existingTicket == null) {
-            throw new RuntimeException("Ticket not found for id: " + id);
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        dao.delete(existingTicket);
+         try {
+            ticketService.delete(existingTicket);
+            return Response.noContent().entity("Ticket deleted successfully").build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to delete ticket").build();
+        }
     }
     
     
