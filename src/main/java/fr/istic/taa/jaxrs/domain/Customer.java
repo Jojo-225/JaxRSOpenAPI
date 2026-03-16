@@ -2,6 +2,8 @@ package fr.istic.taa.jaxrs.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -20,7 +22,8 @@ public class Customer extends User {
         super(lastName, firstName, null, mail, password);
     }
 
-    @ManyToMany(mappedBy = "customers")
+    @ManyToMany(mappedBy = "customers", cascade = jakarta.persistence.CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Ticket> getTickets() {
         return tickets;
     }
