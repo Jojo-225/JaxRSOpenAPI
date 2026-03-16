@@ -1,51 +1,33 @@
-package fr.istic.taa.jaxrs.domain;
+package fr.istic.taa.jaxrs.dto;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import java.io.Serializable;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import fr.istic.taa.jaxrs.domain.Artist;
+import fr.istic.taa.jaxrs.domain.Organizer;
+import fr.istic.taa.jaxrs.domain.Ticket;
 
-@Entity
-public class Concert implements Serializable {
+public class UpdateConcertDto {
     
-    private Long id;
     private String topic;
     private LocalDateTime date;
     private String description;
     private Organizer organizer;
     private List<Ticket> tickets = new ArrayList<>();
     private List<Artist> artists = new ArrayList<>();
+    public UpdateConcertDto(){
 
-    public Concert(){
-        
     }
 
-    public Concert(String topic, LocalDateTime date, String description, Organizer organizer) {
+    public UpdateConcertDto(String topic, LocalDateTime date, String description, Organizer organizer) {
         this.topic = topic;
         this.date = date;
         this.description = description;
         this.organizer = organizer;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long getId() {
-        return id;
-    }
     
-    public void setId(Long id){
-        this.id = id;
-    }
-
     public String getTopic() {
         return topic;
     }
@@ -58,8 +40,6 @@ public class Concert implements Serializable {
         return description;
     }
 
-    @ManyToOne
-    @JsonBackReference
     public Organizer getOrganizer() {
         return organizer;
     }
@@ -80,7 +60,6 @@ public class Concert implements Serializable {
         this.organizer = organizer;
     }
 
-    @OneToMany(mappedBy = "concert", cascade = CascadeType.PERSIST)
     public List<Ticket> getTickets() {
         return tickets;
     }
@@ -97,7 +76,6 @@ public class Concert implements Serializable {
         this.tickets = tickets;
     }
 
-   @ManyToMany (mappedBy = "concerts", cascade = CascadeType.PERSIST)
     public List<Artist> getArtists() {
         return artists;
     }
@@ -114,3 +92,4 @@ public class Concert implements Serializable {
         this.artists = artists;     
     }
 }
+

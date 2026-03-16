@@ -7,44 +7,45 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
 import java.net.URI;
-import java.util.List;
 
-import fr.istic.taa.jaxrs.dao.ConcertDao;
 import fr.istic.taa.jaxrs.domain.Concert;
+import fr.istic.taa.jaxrs.dto.CreateConcertDto;
+import fr.istic.taa.jaxrs.dto.UpdateConcertDto;
+import fr.istic.taa.jaxrs.service.ConcertService;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.PathParam;
 
 
-@Path("/concerts")
+@Path("concerts")
 @Produces("application/json")
 public class ConcertResource {
 
-    private final ConcertDao dao = new ConcertDao();
+    private final ConcertService concertService = new ConcertService();
 
     // Get One concert by id
     @GET    
     @Path("/{id}")
-    public Concert getConcert(@PathParam("id") Long id) {
-        Concert concert= dao.findOne(id);
-        if (concert == null) {
-            throw new RuntimeException("Concert not found for id: " + id);
-        }
-        return concert;
+    public Response getConcertById(@PathParam("id") Long id) {
+       try{
+         Concert concert = concertService.findOne(id);
+         return Response.ok(concert).build();
+        
+        }catch(RuntimeException e ){
+            return Response.status(Response.Status.NOT_FOUND).entity("Concert not found for id: " + id).build();
+         }
 
     }
-       // Get all 
+
     @GET    
-    public List<Concert> getConcerts() {
-        return dao.findAll();
+    @Path("/")
+    public Response getAllConcerts() {
+        return Response.ok(concertService.findAll()).build();
     }
-
-    
-
-    
+ 
     @POST
-    public Response createConcert(Concert concert) {
-        dao.save(concert);
+    public Response createConcert(CreateConcertDto createConcertDto) {
+        Concert concert= concertService.createConcert(createConcertDto);
         return Response.created(URI.create("/concerts/"+ concert.getId()))
         .entity(concert).build();
     }
@@ -53,25 +54,32 @@ public class ConcertResource {
     
     @PUT
     @Path("{id}")
-    public Concert updateConcert(Long id, Concert concert) {
-        Concert existingConcert = dao.findOne(id);
+    public Response updateConcert(@PathParam("id") Long id, UpdateConcertDto updateConcertDto) {
+        Concert existingConcert = concertService.findOne(id);
         if (existingConcert == null) {
-            throw new RuntimeException("Concert not found for id: " + id);
+            return Response.status(Response.Status.NOT_FOUND).entity("Concert not found for id: " + id).build();
+        }try{
+            Concert updateConcert= concertService.update(updateConcertDto, existingConcert);
+            return Response.ok(updateConcert).build();
+        }catch(RuntimeException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update concert").build();
         }
-        concert.setId(id);
-        dao.update(concert);
-        return concert;
     }
 
     @DELETE
     @Path("{id}")
-    public Response deleteConcert(Long id) {
-        Concert existingConcert = dao.findOne(id);
+    public Response deleteConcert(@PathParam("") Long id) {
+        Concert existingConcert = concertService.findOne(id);
         if (existingConcert == null) {
-            throw new RuntimeException("Concert not found for id: " + id); 
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        dao.delete(existingConcert);
-        return Response.noContent().build();
+        try{
+            concertService.delete(existingConcert);
+            return Response.noContent().entity("Ticket deleted successfully").build();
+        }catch(RuntimeException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to delete concert").build();
+        }
+       
     }
 
     

@@ -2,24 +2,42 @@ package fr.istic.taa.jaxrs.service;
 
 import fr.istic.taa.jaxrs.dao.ConcertDao;
 import fr.istic.taa.jaxrs.domain.Concert;
+import fr.istic.taa.jaxrs.dto.CreateConcertDto;
+import fr.istic.taa.jaxrs.dto.UpdateConcertDto;
+
 import java.util.List;
 public class ConcertService {
-    public ConcertDao dao = new ConcertDao();
+    private final ConcertDao concertDao =new ConcertDao();
 
-    public Concert getById(Long id){
-
-        return dao.findOne(id);
-
+    public Concert createConcert(CreateConcertDto createConcertDto){
+        Concert concert = new Concert();
+        concert.setTopic(createConcertDto.getTopic());
+        concert.setDate(createConcertDto.getDate());
+        concert.setDescription(createConcertDto.getDescription());
+        concert.setOrganizer(createConcertDto.getOrganizer());
+        concertDao.save(concert);
+        return concert;
     }
 
-    public List <Concert> getAllConcerts(){
-        return dao.findAll();
-    }
-    public void create(Concert concert){
-        dao.save(concert);
+    public Concert findOne (Long id){
+        return concertDao.findOne(id);
     }
 
-    public void update(Concert concert){
-        dao.update(concert);
+
+    public List <Concert> findAll(){
+        return concertDao.findAll();
+    }
+
+    public Concert update(UpdateConcertDto updateConcertDto, Concert concert){
+        concert.setTopic(updateConcertDto.getTopic());
+        concert.setDate(updateConcertDto.getDate());
+        concert.setDescription(updateConcertDto.getDescription());
+        concert.setOrganizer(updateConcertDto.getOrganizer());
+
+        return concert;
+
+    }
+    public void delete(Concert concert){
+        concertDao.delete(concert);
     }
 }
