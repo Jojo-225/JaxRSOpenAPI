@@ -1,21 +1,21 @@
-package fr.istic.taa.jaxrs.dto;
+package fr.istic.taa.jaxrs.dto.user;
 import java.time.LocalDate;
 
-public class CreateUserDto {
+public class UpdateUserDto {
+
     private String lastname;
     private String firstname;
+    // private String email;
     private LocalDate birthdate;
-    private String email;
     private String pass;
 
-    public CreateUserDto() {
+    public UpdateUserDto() {
     }
 
-    public CreateUserDto(String lastname, String firstname, LocalDate birthdate, String email, String pass) {
+    public UpdateUserDto(String lastname, String firstname, String email, LocalDate birthdate, String pass) {
         this.lastname = lastname;
         this.firstname = firstname;
         this.birthdate = birthdate;
-        this.email = email;
         this.pass = pass;
     }
 
@@ -26,13 +26,13 @@ public class CreateUserDto {
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
-
-    public String getEmail() {
-        return email;
+    
+    public LocalDate getBirthdate() {
+        return birthdate;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
     }
 
     public String getPass() {
@@ -50,13 +50,4 @@ public class CreateUserDto {
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }
-
-    public LocalDate getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
-    }
-
 }

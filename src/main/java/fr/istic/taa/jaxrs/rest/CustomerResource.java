@@ -13,7 +13,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.core.Response;
 
-@Path("customers")
+@Path("/api/customers")
 @Produces({"application/json"})
 public class CustomerResource {
     private final CustomerDao dao = new CustomerDao();

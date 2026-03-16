@@ -55,7 +55,7 @@ public class TestApplication extends Application {
                 .description("Documentation de l'API de gestion de concerts");
 
         // Base URL for API is set to /api/ to match the servlet mapping in web.xml
-        oas.addServersItem(new Server().url("/api/").description("Base URL for API"));
+        oas.addServersItem(new Server().url("/api").description("Base URL for API"));
 
         oas.info(info);
 

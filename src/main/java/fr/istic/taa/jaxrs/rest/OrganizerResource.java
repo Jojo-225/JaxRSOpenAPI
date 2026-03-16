@@ -4,6 +4,8 @@ import java.net.URI;
 
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
 import fr.istic.taa.jaxrs.domain.Organizer;
+import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
+import fr.istic.taa.jaxrs.dto.user.UpdateUserDto;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -12,15 +14,13 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-import fr.istic.taa.jaxrs.dto.CreateUserDto;
 import fr.istic.taa.jaxrs.service.OrganizerService;
 import fr.istic.taa.jaxrs.service.UserService;
-import fr.istic.taa.jaxrs.dto.UpdateUserDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-@Path("/api/organizer")
+@Path("/api/organizers")
 @Produces({"application/json"})
 @Tag(name = "Organizer", description = "API for managing organizers")
 public class OrganizerResource {

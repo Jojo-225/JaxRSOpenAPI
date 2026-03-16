@@ -1,4 +1,4 @@
-package fr.istic.taa.jaxrs.dto;
+package fr.istic.taa.jaxrs.dto.concert;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,18 +8,19 @@ import fr.istic.taa.jaxrs.domain.Artist;
 import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
 
-public class CreateConcertDto {
+public class UpdateConcertDto {
+    
     private String topic;
     private LocalDateTime date;
     private String description;
     private Organizer organizer;
     private List<Ticket> tickets = new ArrayList<>();
     private List<Artist> artists = new ArrayList<>();
-    public CreateConcertDto(){
+    public UpdateConcertDto(){
 
     }
 
-    public CreateConcertDto(String topic, LocalDateTime date, String description, Organizer organizer) {
+    public UpdateConcertDto(String topic, LocalDateTime date, String description, Organizer organizer) {
         this.topic = topic;
         this.date = date;
         this.description = description;
@@ -27,8 +28,6 @@ public class CreateConcertDto {
     }
 
     
-   
-
     public String getTopic() {
         return topic;
     }
@@ -93,3 +92,4 @@ public class CreateConcertDto {
         this.artists = artists;     
     }
 }
+

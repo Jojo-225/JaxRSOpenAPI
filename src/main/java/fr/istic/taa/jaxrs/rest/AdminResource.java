@@ -15,7 +15,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 
-@Path("admin")
+@Path("/api/admin")
 @Produces({"application/json"})
 public class AdminResource {
     private final AdminDao dao = new AdminDao();

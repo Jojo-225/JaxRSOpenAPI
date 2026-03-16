@@ -1,8 +1,8 @@
 package fr.istic.taa.jaxrs.service;
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
 import fr.istic.taa.jaxrs.domain.Organizer;
-import fr.istic.taa.jaxrs.dto.CreateUserDto;
-import fr.istic.taa.jaxrs.dto.UpdateUserDto;
+import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
+import fr.istic.taa.jaxrs.dto.user.UpdateUserDto;
 
 public class OrganizerService {
     private final OrganizerDao organizerDao = new OrganizerDao();

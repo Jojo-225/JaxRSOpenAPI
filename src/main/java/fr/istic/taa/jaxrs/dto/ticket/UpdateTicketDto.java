@@ -1,4 +1,4 @@
-package fr.istic.taa.jaxrs.dto;
+package fr.istic.taa.jaxrs.dto.ticket;
 
 import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Customer;
@@ -6,19 +6,18 @@ import fr.istic.taa.jaxrs.domain.Customer;
 import java.util.List;  
 import java.util.ArrayList;  
 
+public class UpdateTicketDto{
 
-
-public class CreateTicketDto {
-    private String title;
+        private String title;
     private int capacity;
     private String statut;
     private Concert concert;
     private List<Customer> customers = new ArrayList<>();
 
-    public CreateTicketDto() {
+    public UpdateTicketDto() {
     }
     
-    public CreateTicketDto(String title, int capacity, String statut, Concert concert) {
+    public UpdateTicketDto(String title, int capacity, String statut, Concert concert) {
         this.title = title;
         this.capacity = capacity;
         this.statut = statut;
@@ -72,5 +71,6 @@ public class CreateTicketDto {
     public void setCustomers(List<Customer> customers) {
         this.customers = customers;
     }
+
 
 }

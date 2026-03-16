@@ -9,15 +9,15 @@ import jakarta.ws.rs.Produces;
 import java.net.URI;
 
 import fr.istic.taa.jaxrs.domain.Concert;
-import fr.istic.taa.jaxrs.dto.CreateConcertDto;
-import fr.istic.taa.jaxrs.dto.UpdateConcertDto;
+import fr.istic.taa.jaxrs.dto.concert.CreateConcertDto;
+import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 import fr.istic.taa.jaxrs.service.ConcertService;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.PathParam;
 
 
-@Path("concerts")
+@Path("/api/concerts")
 @Produces("application/json")
 public class ConcertResource {
 

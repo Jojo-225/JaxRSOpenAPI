@@ -11,13 +11,13 @@ import java.net.URI;
 
 import fr.istic.taa.jaxrs.dao.TicketDao;
 import fr.istic.taa.jaxrs.domain.Ticket;
-import fr.istic.taa.jaxrs.dto.CreateTicketDto;
-import fr.istic.taa.jaxrs.dto.UpdateTicketDto;
+import fr.istic.taa.jaxrs.dto.ticket.CreateTicketDto;
+import fr.istic.taa.jaxrs.dto.ticket.UpdateTicketDto;
 import fr.istic.taa.jaxrs.service.TicketService;
 import jakarta.ws.rs.core.Response; 
 import jakarta.ws.rs.PathParam;
 
-@Path("tickets")
+@Path("/api/tickets")
 @Produces({"application/json"})
 public class TicketResource {
     private final TicketDao dao = new TicketDao(); 

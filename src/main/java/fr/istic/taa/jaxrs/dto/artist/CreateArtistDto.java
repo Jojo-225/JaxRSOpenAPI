@@ -1,4 +1,4 @@
-package fr.istic.taa.jaxrs.dto;
+package fr.istic.taa.jaxrs.dto.artist;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -2,8 +2,8 @@ package fr.istic.taa.jaxrs.service;
 import java.util.List;
 import fr.istic.taa.jaxrs.dao.TicketDao;
 import fr.istic.taa.jaxrs.domain.Ticket;
-import fr.istic.taa.jaxrs.dto.CreateTicketDto;
-import fr.istic.taa.jaxrs.dto.UpdateTicketDto;
+import fr.istic.taa.jaxrs.dto.ticket.CreateTicketDto;
+import fr.istic.taa.jaxrs.dto.ticket.UpdateTicketDto;
 
 public class TicketService {
     private final TicketDao ticketDao =new TicketDao();

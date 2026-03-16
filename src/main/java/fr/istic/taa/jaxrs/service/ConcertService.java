@@ -2,8 +2,8 @@ package fr.istic.taa.jaxrs.service;
 
 import fr.istic.taa.jaxrs.dao.ConcertDao;
 import fr.istic.taa.jaxrs.domain.Concert;
-import fr.istic.taa.jaxrs.dto.CreateConcertDto;
-import fr.istic.taa.jaxrs.dto.UpdateConcertDto;
+import fr.istic.taa.jaxrs.dto.concert.CreateConcertDto;
+import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 
 import java.util.List;
 public class ConcertService {

@@ -8,15 +8,15 @@ import jakarta.ws.rs.Produces;
 import java.net.URI;
 
 import fr.istic.taa.jaxrs.domain.Artist;
+import fr.istic.taa.jaxrs.dto.artist.CreateArtistDto;
+import fr.istic.taa.jaxrs.dto.artist.UpdateArtistDto;
 import fr.istic.taa.jaxrs.service.ArtistService;
-import fr.istic.taa.jaxrs.dto.CreateArtistDto;
-import fr.istic.taa.jaxrs.dto.UpdateArtistDto;
 import jakarta.ws.rs.POST;  
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.core.Response;
 
-@Path("artists")
+@Path("/api/artists")
 @Produces({"application/json"})
 public class ArtistResource {
     private final ArtistService artistService = new ArtistService();

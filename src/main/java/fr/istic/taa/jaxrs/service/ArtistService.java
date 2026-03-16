@@ -2,8 +2,8 @@ package fr.istic.taa.jaxrs.service;
 
 import fr.istic.taa.jaxrs.dao.ArtistDao;
 import fr.istic.taa.jaxrs.domain.Artist;
-import fr.istic.taa.jaxrs.dto.CreateArtistDto;
-import fr.istic.taa.jaxrs.dto.UpdateArtistDto;
+import fr.istic.taa.jaxrs.dto.artist.CreateArtistDto;
+import fr.istic.taa.jaxrs.dto.artist.UpdateArtistDto;
 
 import java.util.List;
 
