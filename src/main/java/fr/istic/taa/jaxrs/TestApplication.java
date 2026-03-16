@@ -27,16 +27,16 @@ import fr.istic.taa.jaxrs.rest.ConcertResource;
 import fr.istic.taa.jaxrs.rest.CustomerResource;
 import fr.istic.taa.jaxrs.rest.OrganizerResource;
 import fr.istic.taa.jaxrs.rest.TicketResource;
-// import fr.istic.taa.jaxrs.JacksonConfig;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+import fr.istic.taa.jaxrs.rest.SwaggerResource;
 
 @ApplicationPath("/")
 public class TestApplication extends Application {
@@ -87,6 +87,7 @@ public class TestApplication extends Application {
         clazzes.add(ArtistResource.class);
         clazzes.add(TicketResource.class);
         clazzes.add(JacksonConfig.class);
+        clazzes.add(SwaggerResource.class);
 //        clazzes.add(AcceptHeaderOpenApiResource.class);
          
 
