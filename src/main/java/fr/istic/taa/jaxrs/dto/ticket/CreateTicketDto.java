@@ -12,17 +12,17 @@ public class CreateTicketDto {
     private String title;
     private int capacity;
     private String statut;
-    private Concert concert;
+    private Long concertId;
     private List<Customer> customers = new ArrayList<>();
 
     public CreateTicketDto() {
     }
     
-    public CreateTicketDto(String title, int capacity, String statut, Concert concert) {
+    public CreateTicketDto(String title, int capacity, String statut, Long concertId) {
         this.title = title;
         this.capacity = capacity;
         this.statut = statut;
-        this.concert = concert;
+        this.concertId = concertId;
     }
 
     public String getTitle() {
@@ -49,12 +49,12 @@ public class CreateTicketDto {
         this.statut = statut;
     }
 
-    public Concert getConcert() {
-        return concert;
+    public Long getConcert() {
+        return concertId;
     }
 
-    public void setConcert(Concert concert) {
-        this.concert = concert;
+    public void setConcert(Long concertId) {
+        this.concertId = concertId;
     }
 
     public List<Customer> getCustomers() {
