@@ -1,19 +1,27 @@
 package fr.istic.taa.jaxrs.service;
 import java.util.List;
 import fr.istic.taa.jaxrs.dao.TicketDao;
+import fr.istic.taa.jaxrs.dao.ConcertDao;
+import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.dto.ticket.CreateTicketDto;
 import fr.istic.taa.jaxrs.dto.ticket.UpdateTicketDto;
 
 public class TicketService {
     private final TicketDao ticketDao =new TicketDao();
+    private final ConcertDao concertDao = new ConcertDao();
 
     public Ticket createTicket(CreateTicketDto createTicketDto){
+
+        Concert concert = this.concertDao.findOne(createTicketDto.getConcert());
+        if(concert == null){
+            throw new IllegalArgumentException("Concert not found");
+        }
         Ticket ticket=new Ticket();
         ticket.setTitle(createTicketDto.getTitle());
         ticket.setCapacity(createTicketDto.getCapacity());
         ticket.setStatut(createTicketDto.getStatut());
-        ticket.setConcert(createTicketDto.getConcert());
+        ticket.setConcert(concert);
         ticketDao.save(ticket);
         return ticket;
 
@@ -31,7 +39,6 @@ public class TicketService {
         ticket.setTitle(updateTicketDto.getTitle());
         ticket.setCapacity(updateTicketDto.getCapacity());
         ticket.setStatut(updateTicketDto.getStatut());
-        ticket.setConcert(updateTicketDto.getConcert());
        
         return ticketDao.update(ticket);
     }
