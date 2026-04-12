@@ -1,9 +1,10 @@
 package fr.istic.taa.jaxrs.dao;
 
+import java.util.List;
+
 import fr.istic.taa.jaxrs.dao.generic.AbstractJpaDao;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.domain.Ticket;
-import java.util.List;
 
 public class CustomerDao extends AbstractJpaDao<Long, Customer> {
     public CustomerDao() {
@@ -17,4 +18,6 @@ public class CustomerDao extends AbstractJpaDao<Long, Customer> {
                 .setParameter("customerId", customerId)
                 .getResultList();
     }
+
+    // TODO : Creitera pour trouver les clients qui ont acheté des tickets pour un concert spécifique 
 }
