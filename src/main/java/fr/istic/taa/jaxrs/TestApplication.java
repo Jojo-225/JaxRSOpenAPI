@@ -21,12 +21,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.istic.taa.jaxrs.rest.AdminResource;
 import fr.istic.taa.jaxrs.rest.ArtistResource;
 import fr.istic.taa.jaxrs.rest.ConcertResource;
 import fr.istic.taa.jaxrs.rest.CustomerResource;
 import fr.istic.taa.jaxrs.rest.OrganizerResource;
 import fr.istic.taa.jaxrs.rest.TicketResource;
+import fr.istic.taa.jaxrs.rest.manage.AdminResource;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;

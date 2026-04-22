@@ -1,4 +1,4 @@
-package fr.istic.taa.jaxrs.rest;
+package fr.istic.taa.jaxrs.rest.manage;
 
 import java.net.URI;
 
