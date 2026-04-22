@@ -14,7 +14,7 @@ public class CustomerService {
         customer.setFirstName(createUserDto.getLastname());
         customer.setDateOfBirth(createUserDto.getBirthdate());
         customer.setMail(createUserDto.getEmail());
-        customer.setPassword(createUserDto.getPass());
+        customer.setPassword(createUserDto.getPassword());
 
        customerDao.save(customer);
        return customer;

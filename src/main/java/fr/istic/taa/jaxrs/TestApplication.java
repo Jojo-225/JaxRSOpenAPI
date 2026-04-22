@@ -21,7 +21,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.istic.taa.jaxrs.filters.JWTAuthFilter;
+import fr.istic.taa.jaxrs.rest.AdminResource;
 import fr.istic.taa.jaxrs.rest.ArtistResource;
+import fr.istic.taa.jaxrs.rest.AuthResource;
 import fr.istic.taa.jaxrs.rest.ConcertResource;
 import fr.istic.taa.jaxrs.rest.CustomerResource;
 import fr.istic.taa.jaxrs.rest.OrganizerResource;
@@ -88,6 +91,8 @@ public class TestApplication extends Application {
         clazzes.add(TicketResource.class);
         clazzes.add(JacksonConfig.class);
         clazzes.add(SwaggerResource.class);
+        clazzes.add(AuthResource.class);
+        clazzes.add(JWTAuthFilter.class);
 //        clazzes.add(AcceptHeaderOpenApiResource.class);
          
 

@@ -6,17 +6,17 @@ public class CreateUserDto {
     private String firstname;
     private LocalDate birthdate;
     private String email;
-    private String pass;
+    private String password;
 
     public CreateUserDto() {
     }
 
-    public CreateUserDto(String lastname, String firstname, LocalDate birthdate, String email, String pass) {
+    public CreateUserDto(String lastname, String firstname, LocalDate birthdate, String email, String password) {
         this.lastname = lastname;
         this.firstname = firstname;
         this.birthdate = birthdate;
         this.email = email;
-        this.pass = pass;
+        this.password = password;
     }
 
     public String getLastname() {
@@ -35,12 +35,12 @@ public class CreateUserDto {
         this.email = email;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPassword(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getFirstname() {

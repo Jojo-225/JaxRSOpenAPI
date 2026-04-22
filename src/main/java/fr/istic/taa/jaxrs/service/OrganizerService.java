@@ -13,7 +13,7 @@ public class OrganizerService {
         organizer.setFirstName(createOrganizerDto.getFirstname());
         organizer.setDateOfBirth(createOrganizerDto.getBirthdate());
         organizer.setMail(createOrganizerDto.getEmail());
-        organizer.setPassword(createOrganizerDto.getPass());
+        organizer.setPassword(createOrganizerDto.getPassword());
 
         if (organizerDao.getByEmail(organizer.getMail()) != null) {
             throw new RuntimeException("An organizer with this email already exists");
