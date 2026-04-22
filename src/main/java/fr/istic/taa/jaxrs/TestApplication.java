@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.istic.taa.jaxrs.filters.JWTAuthFilter;
-import fr.istic.taa.jaxrs.rest.AdminResource;
 import fr.istic.taa.jaxrs.rest.ArtistResource;
 import fr.istic.taa.jaxrs.rest.AuthResource;
 import fr.istic.taa.jaxrs.rest.ConcertResource;
