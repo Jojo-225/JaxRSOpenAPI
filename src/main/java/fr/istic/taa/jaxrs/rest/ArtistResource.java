@@ -6,6 +6,8 @@ import fr.istic.taa.jaxrs.domain.Artist;
 import fr.istic.taa.jaxrs.dto.artist.CreateArtistDto;
 import fr.istic.taa.jaxrs.dto.artist.UpdateArtistDto;
 import fr.istic.taa.jaxrs.service.ArtistService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -15,8 +17,10 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/artists")
+@Path("/artists")
 @Produces({"application/json"})
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
 public class ArtistResource {
     private final ArtistService artistService = new ArtistService();
     
@@ -39,6 +43,7 @@ public class ArtistResource {
     }
     
     @POST   
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     public Response createArtist(CreateArtistDto createArtistDto) {
         Artist artist = artistService.createArtist(createArtistDto);
         return Response.created(URI.create("/artists/"+artist.getId())).entity(artist).build();
@@ -46,6 +51,7 @@ public class ArtistResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     public Response updateArtist(@PathParam("id") Long id, UpdateArtistDto updateArtistDto) {
         Artist existingArtist = artistService.findOne(id);
         if (existingArtist == null) {
@@ -61,6 +67,7 @@ public class ArtistResource {
     
     @DELETE
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     public Response deleteArtist(@PathParam("id") Long id) {
 
         Artist existingArtist = artistService.findOne(id);

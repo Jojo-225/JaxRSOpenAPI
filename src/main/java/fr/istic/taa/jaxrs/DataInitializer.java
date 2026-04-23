@@ -32,6 +32,12 @@ public class DataInitializer {
         EntityTransaction tx = manager.getTransaction();
         tx.begin();
 
+        if (!isEmpty()) {
+            logger.info("Data already initialized, skipping.");
+            tx.rollback();
+            return;
+        }
+
         try {
             for (int i = 0; i < 2; i++) {
 				Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);

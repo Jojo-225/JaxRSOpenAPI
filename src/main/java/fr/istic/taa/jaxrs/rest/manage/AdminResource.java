@@ -5,6 +5,8 @@ import java.net.URI;
 import fr.istic.taa.jaxrs.dao.AdminDao;
 import fr.istic.taa.jaxrs.domain.Admin;
 import fr.istic.taa.jaxrs.service.AdminService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -15,8 +17,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 
-@Path("/api/admin")
+@Path("/admin")
 @Produces({"application/json"})
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed("ADMIN")
 public class AdminResource {
     private final AdminDao dao = new AdminDao();
     private final AdminService adminService = new AdminService();
@@ -55,7 +59,7 @@ public class AdminResource {
 
     @PUT
     @Path("/{id}")
-    public Admin updateAdmin(Long id, Admin admin) {
+    public Admin updateAdmin(@PathParam("id") Long id, Admin admin) {
         Admin existingAdmin = adminService.getById(id);
         if (existingAdmin == null) {
             throw new RuntimeException("Admin not found for id: " + id);
@@ -67,7 +71,7 @@ public class AdminResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteAdmin(Long id) {         
+    public Response deleteAdmin(@PathParam("id") Long id) {         
         Admin existingAdmin = adminService.getById(id);
         if (existingAdmin == null) {
             throw new RuntimeException("Admin not found for id: " + id);

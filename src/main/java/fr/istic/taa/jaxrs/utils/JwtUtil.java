@@ -6,42 +6,62 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.Principal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class JwtUtil {
 
     private static final String JWT_ISSUER = "concerts-app";
     private static final long JWT_LIFETIME_MS = 60 * 60 * 1000; // 1h
-    /** Cette clé sera renouveller à chaque redemarrage du serveur   */
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    /** Permet de savoir quel utilisateur fait des requête sur le site */
+    /**
+     * Use JWT_SECRET when available to keep tokens valid across restarts.
+     * Fallback to a generated key for local/dev convenience.
+     */
+    private static final Key key = buildKey();
+
+    private static Key buildKey() {
+        String configuredSecret = System.getenv("JWT_SECRET");
+        if (configuredSecret != null && !configuredSecret.isBlank()) {
+            byte[] raw = configuredSecret.getBytes(StandardCharsets.UTF_8);
+            // HS256 expects at least a 256-bit key.
+            return Keys.hmacShaKeyFor(Arrays.copyOf(raw, 32));
+        }
+        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    }
+
     public static class TokenPayload implements Principal {
-         private final String username;
-         private final Set<String> roles;
+        private final String username;
+        private final Set<String> roles;
 
         public TokenPayload(String username, Set<String> roles) {
             this.username = username;
             this.roles = roles;
         }
 
-        //retourne le username stocké dans le payload
-        public String username() { return username; }
-        public Set<String> roles() { return roles; }
+        public String username() {
+            return username;
+        }
 
-        //Représente le "nom" de l'utilisateur authentifié.
+        public Set<String> roles() {
+            return roles;
+        }
+
         @Override
         public String getName() {
             return username;
         }
     }
 
-    /** Génère un token à partir du nom et du role de l'utilisateur */
     public static String generateToken(String username, Set<String> roles) {
         return Jwts.builder()
-                .setSubject(username) // ex: mail
+                .setSubject(username)
                 .setIssuer(JWT_ISSUER)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_LIFETIME_MS))
@@ -49,7 +69,6 @@ public class JwtUtil {
                 .signWith(key)
                 .compact();
     }
-
 
     public static TokenPayload validateToken(String token) throws JwtException {
         Claims claims = Jwts.parserBuilder()

@@ -8,7 +8,10 @@ import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
 import fr.istic.taa.jaxrs.utils.JwtUtil;
 import fr.istic.taa.jaxrs.utils.PasswordUtil;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -22,69 +25,54 @@ public class AuthResource {
 
     private final UserDao userDao = new UserDao();
 
-    /**
-     * DTO minimal pour le login 
-     * Le client envoie : { "mail": "...", "password": "..." }
-     */
     public static class LoginRequest {
         public String mail;
         public String password;
     }
 
-    /**
-     * LOGIN : vérifie les identifiants et renvoie un JWT
-     */
     @POST
     @Path("/login")
     public Response login(LoginRequest req) {
 
-        // Vérification basique des champs
-        if (req == null || req.mail == null || req.password == null) {
+        if (req == null || req.mail == null || req.password == null
+                || req.mail.isBlank() || req.password.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", "mail/password required"))
                     .build();
         }
 
-        // Recherche de l'utilisateur (selon ton DAO)
         User user = userDao.findByEmail(req.mail);
 
-        // Si utilisateur introuvable => 401
         if (user == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(Map.of("error", "invalid credentials"))
                     .build();
         }
-        
-        if (!PasswordUtil.verify(req.password, user.getPassword())) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        if (user.getPassword() == null || !PasswordUtil.verify(req.password, user.getPassword())) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(Map.of("error", "invalid credentials"))
+                    .build();
         }
 
-        // Déduit le rôle du type réel (Admin/Organizer/Customer)
         Set<String> roles = rolesFromUser(user);
-
-        // Génère le token JWT
         String token = JwtUtil.generateToken(user.getMail(), roles);
 
         return Response.ok(Map.of("token", token, "roles", roles)).build();
     }
 
-    /**
-     * REGISTER : crée un nouvel utilisateur en base.
-     * Ici on choisit de créer un CUSTOMER par défaut (inscription publique).
-     */
     @POST
     @Path("/register")
     public Response register(CreateUserDto dto) {
-         String hashed = PasswordUtil.hash(dto.getPassword());
-        // Vérification basique des champs
         if (dto == null || dto.getEmail() == null || dto.getPassword() == null
-                || dto.getFirstname() == null || dto.getLastname() == null || dto.getBirthdate() == null) {
+                || dto.getFirstname() == null || dto.getLastname() == null || dto.getBirthdate() == null
+                || dto.getEmail().isBlank() || dto.getPassword().isBlank()
+                || dto.getFirstname().isBlank() || dto.getLastname().isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", "missing fields"))
                     .build();
         }
 
-        // Vérifie si l'email existe déjà (à implémenter si pas encore)
         User existing = userDao.findByEmail(dto.getEmail());
         if (existing != null) {
             return Response.status(Response.Status.CONFLICT)
@@ -92,7 +80,8 @@ public class AuthResource {
                     .build();
         }
 
-        // On crée un utilisateur de type CUSTOMER (public)
+        String hashed = PasswordUtil.hash(dto.getPassword());
+
         Customer newUser = new Customer(
                 dto.getLastname(),
                 dto.getFirstname(),
@@ -100,10 +89,8 @@ public class AuthResource {
                 hashed
         );
 
-        // Sauvegarde en base
         userDao.save(newUser);
 
-        // Option : connecter directement après inscription
         Set<String> roles = rolesFromUser(newUser);
         String token = JwtUtil.generateToken(newUser.getMail(), roles);
 
@@ -112,9 +99,6 @@ public class AuthResource {
                 .build();
     }
 
-    /**
-     * Déduit les rôles à partir du type réel de l'entité User
-     */
     private Set<String> rolesFromUser(User u) {
         if (u instanceof Admin) return Set.of("ADMIN");
         if (u instanceof Organizer) return Set.of("ORGANIZER");

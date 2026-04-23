@@ -27,27 +27,29 @@ import fr.istic.taa.jaxrs.rest.AuthResource;
 import fr.istic.taa.jaxrs.rest.ConcertResource;
 import fr.istic.taa.jaxrs.rest.CustomerResource;
 import fr.istic.taa.jaxrs.rest.OrganizerResource;
+import fr.istic.taa.jaxrs.rest.SwaggerResource;
 import fr.istic.taa.jaxrs.rest.TicketResource;
 import fr.istic.taa.jaxrs.rest.manage.AdminResource;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-import fr.istic.taa.jaxrs.rest.SwaggerResource;
 
 @ApplicationPath("/")
 public class TestApplication extends Application {
 	
     public TestApplication() {
         // Initialisation automatique au démarrage de l'app
-        // if (DataInitializer.isEmpty()) {
+        if (DataInitializer.isEmpty()) {
             DataInitializer.initialize();
-        // }
+        }
 
         // Configuration de Swagger / OpenAPI
         OpenAPI oas = new OpenAPI();
@@ -58,6 +60,12 @@ public class TestApplication extends Application {
 
         // Base URL for API is set to /api/ to match the servlet mapping in web.xml
         oas.addServersItem(new Server().url("/api").description("Base URL for API"));
+
+        oas.components(new Components()
+                .addSecuritySchemes("bearerAuth", new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
 
         oas.info(info);
 

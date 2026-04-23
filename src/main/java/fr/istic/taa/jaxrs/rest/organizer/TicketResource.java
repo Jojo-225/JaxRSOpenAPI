@@ -16,7 +16,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/tickets")
+@Path("/tickets")
 @Produces({"application/json"})
 public class TicketResource {
     private final TicketDao dao = new TicketDao(); 

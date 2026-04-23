@@ -1,11 +1,7 @@
 package fr.istic.taa.jaxrs.rest;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-
 import java.net.URI;
+
 import fr.istic.taa.jaxrs.dao.CustomerDao;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
@@ -14,13 +10,21 @@ import fr.istic.taa.jaxrs.service.CustomerService;
 import fr.istic.taa.jaxrs.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/customers")
+@Path("/customers")
 @Produces({"application/json"})
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
 public class CustomerResource {
     private CustomerDao dao = new CustomerDao();
     private CustomerService customerService =new CustomerService();
@@ -53,6 +57,7 @@ public class CustomerResource {
 
     @POST
     @Path("/")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
      @Operation(summary = "Create a new customer", description = "Creates a new customer", responses = {
         @ApiResponse(responseCode = "201", description = "Customer created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data")
@@ -71,6 +76,7 @@ public class CustomerResource {
 
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
      @Operation(summary = "Update an existing customer", description = "Updates an existing customer", responses = {
         @ApiResponse(responseCode = "200", description = "Customer updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
@@ -91,6 +97,7 @@ public class CustomerResource {
 
     @DELETE
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
       @Operation(summary = "Delete an customer", description = "Deletes an customer if there are no associated tickets", responses = {
         @ApiResponse(responseCode = "204", description = "Customer deleted successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot delete customer with associated tickets"),

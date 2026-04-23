@@ -1,24 +1,27 @@
 package fr.istic.taa.jaxrs.rest;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 import java.net.URI;
 
 import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.dto.concert.CreateConcertDto;
 import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 import fr.istic.taa.jaxrs.service.ConcertService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Response;
 
 
-@Path("/api/concerts")
+@Path("/concerts")
 @Produces("application/json")
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
 public class ConcertResource {
 
     private final ConcertService concertService = new ConcertService();
@@ -44,6 +47,7 @@ public class ConcertResource {
     }
  
     @POST
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     public Response createConcert(CreateConcertDto createConcertDto) {
         Concert concert= concertService.createConcert(createConcertDto);
         return Response.created(URI.create("/concerts/"+ concert.getId()))
@@ -54,6 +58,7 @@ public class ConcertResource {
     
     @PUT
     @Path("{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     public Response updateConcert(@PathParam("id") Long id, UpdateConcertDto updateConcertDto) {
         Concert existingConcert = concertService.findOne(id);
         if (existingConcert == null) {
@@ -68,7 +73,8 @@ public class ConcertResource {
 
     @DELETE
     @Path("{id}")
-    public Response deleteConcert(@PathParam("") Long id) {
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
+    public Response deleteConcert(@PathParam("id") Long id) {
         Concert existingConcert = concertService.findOne(id);
         if (existingConcert == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

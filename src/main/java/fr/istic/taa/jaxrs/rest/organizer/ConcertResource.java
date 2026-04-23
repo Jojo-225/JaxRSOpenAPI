@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 
-@Path("/api/concerts")
+@Path("/concerts")
 @Produces("application/json")
 public class ConcertResource {
 

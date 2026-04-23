@@ -20,7 +20,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/api/organizers")
+@Path("/organizers")
 @Produces({"application/json"})
 @Tag(name = "Organizer", description = "API for managing organizers")
 public class OrganizerResource {

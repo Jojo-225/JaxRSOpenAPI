@@ -3,6 +3,8 @@ package fr.istic.taa.jaxrs.filters;
 import fr.istic.taa.jaxrs.utils.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.annotation.Priority;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -24,6 +26,16 @@ public class JWTAuthFilter implements ContainerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
+    private boolean isPermitAll() {
+        return resourceInfo.getResourceMethod().isAnnotationPresent(PermitAll.class)
+                || resourceInfo.getResourceClass().isAnnotationPresent(PermitAll.class);
+    }
+
+    private boolean isDenyAll() {
+        return resourceInfo.getResourceMethod().isAnnotationPresent(DenyAll.class)
+                || resourceInfo.getResourceClass().isAnnotationPresent(DenyAll.class);
+    }
+
     private RolesAllowed getRolesAllowed() {
         RolesAllowed m = resourceInfo.getResourceMethod().getAnnotation(RolesAllowed.class);
         return (m != null) ? m : resourceInfo.getResourceClass().getAnnotation(RolesAllowed.class);
@@ -31,6 +43,18 @@ public class JWTAuthFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
+        if (resourceInfo == null || resourceInfo.getResourceMethod() == null) {
+            return;
+        }
+
+        if (isPermitAll()) {
+            return;
+        }
+
+        if (isDenyAll()) {
+            requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            return;
+        }
 
         RolesAllowed rolesAllowed = getRolesAllowed();
 

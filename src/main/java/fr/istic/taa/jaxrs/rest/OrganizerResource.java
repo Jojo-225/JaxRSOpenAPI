@@ -6,6 +6,13 @@ import fr.istic.taa.jaxrs.dao.OrganizerDao;
 import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
 import fr.istic.taa.jaxrs.dto.user.UpdateUserDto;
+import fr.istic.taa.jaxrs.service.OrganizerService;
+import fr.istic.taa.jaxrs.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -14,15 +21,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-import fr.istic.taa.jaxrs.service.OrganizerService;
-import fr.istic.taa.jaxrs.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-@Path("/api/organizers")
+@Path("/organizers")
 @Produces({"application/json"})
 @Tag(name = "Organizer", description = "API for managing organizers")
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
 public class OrganizerResource {
     private final OrganizerDao dao = new OrganizerDao();
     private final OrganizerService organizerService = new OrganizerService();
@@ -55,6 +59,7 @@ public class OrganizerResource {
 
     @POST
     @Path("/")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     @Operation(summary = "Create a new organizer", description = "Creates a new organizer", responses = {
         @ApiResponse(responseCode = "201", description = "Organizer created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data")
@@ -74,6 +79,7 @@ public class OrganizerResource {
     
     @PUT
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     @Operation(summary = "Update an existing organizer", description = "Updates an existing organizer", responses = {
         @ApiResponse(responseCode = "200", description = "Organizer updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
@@ -94,6 +100,7 @@ public class OrganizerResource {
 
     @PUT
     @Path("/{id}/updateEmail")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     @Operation(summary = "Update an existing organizer's email", description = "Updates an existing organizer's email", responses = {
         @ApiResponse(responseCode = "200", description = "Organizer email updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
@@ -123,6 +130,7 @@ public class OrganizerResource {
      */
     @DELETE
     @Path("/{id}")
+    @RolesAllowed({"ADMIN", "ORGANIZER"})
     @Operation(summary = "Delete an organizer", description = "Deletes an organizer if there are no associated concerts", responses = {
         @ApiResponse(responseCode = "204", description = "Organizer deleted successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot delete organizer with associated concerts"),
