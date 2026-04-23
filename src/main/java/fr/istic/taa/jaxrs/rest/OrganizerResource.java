@@ -1,9 +1,11 @@
 package fr.istic.taa.jaxrs.rest;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
 import fr.istic.taa.jaxrs.domain.Organizer;
+import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
 import fr.istic.taa.jaxrs.dto.user.UpdateUserDto;
 import fr.istic.taa.jaxrs.service.OrganizerService;
@@ -41,7 +43,7 @@ public class OrganizerResource {
     public Response getOrganizerById(@PathParam("id") Long id) {
         try{
             Organizer organizer = organizerService.findOne(id);
-            return Response.ok(organizer).build();
+            return Response.ok(ResponseMapper.toUserDto(organizer)).build();
             // throw new RuntimeException("Organizer not found for id: " + id);                    
         }catch (RuntimeException e) {            
             return Response.status(Response.Status.NOT_FOUND).entity("Organizer not found for id: " + id).build();
@@ -54,7 +56,9 @@ public class OrganizerResource {
         @ApiResponse(responseCode = "200", description = "Successful retrieval of organizers")
     })
     public Response getAllOrganizers() {
-        return Response.ok(organizerService.findAll()).build();
+        return Response.ok(organizerService.findAll().stream()
+                .map(ResponseMapper::toUserDto)
+                .collect(Collectors.toList())).build();
     }
 
     @POST
@@ -71,7 +75,9 @@ public class OrganizerResource {
         }
         try {
             Organizer organizer = organizerService.createOrganizer(createOrganizerDto);
-            return Response.created(URI.create("/organizer/"+organizer.getId())).entity(organizer).build();
+            return Response.created(URI.create("/organizer/"+organizer.getId()))
+                    .entity(ResponseMapper.toUserDto(organizer))
+                    .build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to create organizer").build();
         }
@@ -92,7 +98,7 @@ public class OrganizerResource {
         }
         try {
             Organizer updatedOrganizer = organizerService.update(updateOrganizerDto, existingOrganizer);
-            return Response.ok(updatedOrganizer).build();
+            return Response.ok(ResponseMapper.toUserDto(updatedOrganizer)).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update organizer").build();
         }
@@ -113,7 +119,7 @@ public class OrganizerResource {
         }
         try {
             Organizer updatedOrganizer = organizerService.updateEmail(newEmail, existingOrganizer);
-            return Response.ok(updatedOrganizer).build();
+            return Response.ok(ResponseMapper.toUserDto(updatedOrganizer)).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }

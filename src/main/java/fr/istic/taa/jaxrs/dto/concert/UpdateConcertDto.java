@@ -36,6 +36,10 @@ public class UpdateConcertDto {
         return organizerId;
     }
 
+    public Long getOrganizerId() {
+        return organizerId;
+    }
+
     public void setTopic(String topic) {
         this.topic = topic;
     }
@@ -49,6 +53,10 @@ public class UpdateConcertDto {
     }
 
     public void setOrganizer(Long organizerId) {
+        this.organizerId = organizerId;
+    }
+
+    public void setOrganizerId(Long organizerId) {
         this.organizerId = organizerId;
     }
 }

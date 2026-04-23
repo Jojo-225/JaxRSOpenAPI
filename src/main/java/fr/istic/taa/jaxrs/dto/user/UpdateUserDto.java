@@ -7,16 +7,16 @@ public class UpdateUserDto {
     private String firstname;
     // private String email;
     private LocalDate birthdate;
-    private String pass;
+    private String password;
 
     public UpdateUserDto() {
     }
 
-    public UpdateUserDto(String lastname, String firstname, String email, LocalDate birthdate, String pass) {
+    public UpdateUserDto(String lastname, String firstname, String email, LocalDate birthdate, String password) {
         this.lastname = lastname;
         this.firstname = firstname;
         this.birthdate = birthdate;
-        this.pass = pass;
+        this.password = password;
     }
 
     public String getLastname() {
@@ -36,11 +36,19 @@ public class UpdateUserDto {
     }
 
     public String getPass() {
-        return pass;
+        return password;
     }
 
-    public void setPassword(String pass) {
-        this.pass = pass;
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setPass(String password) {
+        this.password = password;
     }
 
     public String getFirstname() {

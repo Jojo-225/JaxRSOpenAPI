@@ -47,9 +47,7 @@ public class TestApplication extends Application {
 	
     public TestApplication() {
         // Initialisation automatique au démarrage de l'app
-        if (DataInitializer.isEmpty()) {
-            DataInitializer.initialize();
-        }
+        DataInitializer.initializeIfEmpty();
 
         // Configuration de Swagger / OpenAPI
         OpenAPI oas = new OpenAPI();
@@ -107,3 +105,4 @@ public class TestApplication extends Application {
     }
 
 }
+

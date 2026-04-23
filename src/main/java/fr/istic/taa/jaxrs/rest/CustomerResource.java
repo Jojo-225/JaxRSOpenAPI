@@ -1,9 +1,11 @@
 package fr.istic.taa.jaxrs.rest;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import fr.istic.taa.jaxrs.dao.CustomerDao;
 import fr.istic.taa.jaxrs.domain.Customer;
+import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.user.CreateUserDto;
 import fr.istic.taa.jaxrs.dto.user.UpdateUserDto;
 import fr.istic.taa.jaxrs.service.CustomerService;
@@ -11,6 +13,7 @@ import fr.istic.taa.jaxrs.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -23,6 +26,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/customers")
 @Produces({"application/json"})
+@Tag(name = "Customer", description = "API for managing customers")
 @SecurityRequirement(name = "bearerAuth")
 @RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
 public class CustomerResource {
@@ -39,7 +43,7 @@ public class CustomerResource {
     public Response getCustomerById(@PathParam("id") Long id) {
         try{
             Customer customer = customerService.findOne(id);
-            return Response.ok(customer).build();
+            return Response.ok(ResponseMapper.toUserDto(customer)).build();
 
         }catch(RuntimeException e){
             return Response.status(Response.Status.NOT_FOUND).entity("Customer not found for id: " + id).build();
@@ -49,10 +53,12 @@ public class CustomerResource {
     @GET
     @Path("/")
     @Operation(summary = "Get all customers", description = "Returns a list of all customers", responses = {
-        @ApiResponse(responseCode = "200", description = "Successful retrieval of organizers")
+        @ApiResponse(responseCode = "200", description = "Successful retrieval of customers")
     })
     public Response getAllCustomers() {
-        return Response.ok(customerService.findAll()).build();
+        return Response.ok(customerService.findAll().stream()
+                .map(ResponseMapper::toUserDto)
+                .collect(Collectors.toList())).build();
     }
 
     @POST
@@ -68,7 +74,9 @@ public class CustomerResource {
         }
         try {
             Customer customer = customerService.createCustomer(createCustomerDto);
-            return Response.created(URI.create("/customer/"+customer.getId())).entity(customer).build();
+            return Response.created(URI.create("/customer/"+customer.getId()))
+                    .entity(ResponseMapper.toUserDto(customer))
+                    .build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to create customer").build();
         }
@@ -89,7 +97,7 @@ public class CustomerResource {
         }
         try {
             Customer updatedCustomer = customerService.update(updateCustomerDto,existingCustomer);
-            return Response.ok(updatedCustomer).build();
+            return Response.ok(ResponseMapper.toUserDto(updatedCustomer)).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to update customer").build();
         }

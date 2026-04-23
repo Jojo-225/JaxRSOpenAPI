@@ -10,7 +10,9 @@ import fr.istic.taa.jaxrs.service.OrganizerService;
 import fr.istic.taa.jaxrs.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -23,6 +25,8 @@ import jakarta.ws.rs.core.Response;
 @Path("/organizers")
 @Produces({"application/json"})
 @Tag(name = "Organizer", description = "API for managing organizers")
+@SecurityRequirement(name = "bearerAuth")
+@RolesAllowed("ORGANIZER")
 public class OrganizerResource {
     private final OrganizerDao dao = new OrganizerDao();
     private final OrganizerService organizerService = new OrganizerService();

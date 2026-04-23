@@ -1,7 +1,5 @@
 package fr.istic.taa.jaxrs.dto.ticket;
 
-import fr.istic.taa.jaxrs.domain.Customer;
-
 import java.util.List;  
 import java.util.ArrayList;  
 
@@ -10,7 +8,7 @@ public class UpdateTicketDto{
     private String title;
     private int capacity;
     private String statut;
-    private List<Customer> customers = new ArrayList<>();
+    private List<Long> customerIds = new ArrayList<>();
 
     public UpdateTicketDto() {
     }
@@ -45,20 +43,20 @@ public class UpdateTicketDto{
         this.statut = statut;
     }
 
-    public List<Customer> getCustomers() {
-        return customers;
+    public List<Long> getCustomerIds() {
+        return customerIds;
     }
 
-    public void addCustomer(Customer customer) {
-        this.customers.add(customer);
+    public void addCustomerId(Long customerId) {
+        this.customerIds.add(customerId);
     }
 
-    public void removeCustomer(Customer customer) {
-        this.customers.remove(customer);
+    public void removeCustomerId(Long customerId) {
+        this.customerIds.remove(customerId);
     }
 
-    public void setCustomers(List<Customer> customers) {
-        this.customers = customers;
+    public void setCustomerIds(List<Long> customerIds) {
+        this.customerIds = customerIds;
     }
 
 

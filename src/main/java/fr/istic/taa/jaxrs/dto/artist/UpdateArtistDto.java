@@ -2,15 +2,13 @@ package fr.istic.taa.jaxrs.dto.artist;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.istic.taa.jaxrs.domain.Concert;
-
 public class UpdateArtistDto {
     private String name;
-    private List<Concert> concerts = new ArrayList<>();
+    private List<Long> concertIds = new ArrayList<>();
 
-    public UpdateArtistDto(String name, List<Concert> concerts){
+    public UpdateArtistDto(String name, List<Long> concertIds){
         this.name=name;
-        this.concerts=concerts;
+        this.concertIds=concertIds;
     }
 
     public UpdateArtistDto() {
@@ -24,20 +22,20 @@ public class UpdateArtistDto {
         this.name = name;
     }
 
-    public List<Concert> getConcerts() {
-        return concerts;
+    public List<Long> getConcertIds() {
+        return concertIds;
     }
 
-    public void addConcert(Concert concert) {
-        this.concerts.add(concert);
+    public void addConcertId(Long concertId) {
+        this.concertIds.add(concertId);
     }
 
-    public void removeConcert(Concert concert) {
-        this.concerts.remove(concert);
+    public void removeConcertId(Long concertId) {
+        this.concertIds.remove(concertId);
     }
     
-    public void setConcerts(List<Concert> concerts) {
-        this.concerts = concerts;
+    public void setConcertIds(List<Long> concertIds) {
+        this.concertIds = concertIds;
     }   
 
 }

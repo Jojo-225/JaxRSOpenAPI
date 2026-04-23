@@ -1,25 +1,36 @@
-package fr.istic.taa.jaxrs.dto.ticket;
+package fr.istic.taa.jaxrs.dto.response;
 
-import java.util.List;  
-import java.util.ArrayList;  
+import java.util.ArrayList;
+import java.util.List;
 
-
-
-public class CreateTicketDto {
+public class TicketResponseDto {
+    private Long id;
     private String title;
     private int capacity;
     private String statut;
     private Long concertId;
     private List<Long> customerIds = new ArrayList<>();
 
-    public CreateTicketDto() {
+    public TicketResponseDto() {
     }
-    
-    public CreateTicketDto(String title, int capacity, String statut, Long concertId) {
+
+    public TicketResponseDto(Long id, String title, int capacity, String statut, Long concertId, List<Long> customerIds) {
+        this.id = id;
         this.title = title;
         this.capacity = capacity;
         this.statut = statut;
         this.concertId = concertId;
+        if (customerIds != null) {
+            this.customerIds = customerIds;
+        }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -46,16 +57,8 @@ public class CreateTicketDto {
         this.statut = statut;
     }
 
-    public Long getConcert() {
-        return concertId;
-    }
-
     public Long getConcertId() {
         return concertId;
-    }
-
-    public void setConcert(Long concertId) {
-        this.concertId = concertId;
     }
 
     public void setConcertId(Long concertId) {
@@ -66,16 +69,7 @@ public class CreateTicketDto {
         return customerIds;
     }
 
-    public void addCustomerId(Long customerId) {
-        this.customerIds.add(customerId);
-    }
-
-    public void removeCustomerId(Long customerId) {
-        this.customerIds.remove(customerId);
-    }
-
     public void setCustomerIds(List<Long> customerIds) {
         this.customerIds = customerIds;
     }
-
 }

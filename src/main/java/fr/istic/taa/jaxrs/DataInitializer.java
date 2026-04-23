@@ -1,6 +1,7 @@
 package fr.istic.taa.jaxrs;
  
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import fr.istic.taa.jaxrs.dao.generic.EntityManagerHelper;
@@ -19,11 +20,25 @@ import jakarta.persistence.EntityTransaction;
 public class DataInitializer {
 
     private static final Logger logger = Logger.getLogger(DataInitializer.class.getName());
+    private static final AtomicBoolean alreadyInitializedThisJvm = new AtomicBoolean(false);
  
     private DataInitializer() {}
  
     public static void initialize() {
         new DataInitializer()._initialize();
+    }
+
+    public static void initializeIfEmpty() {
+        if (alreadyInitializedThisJvm.get()) {
+            return;
+        }
+        if (!isEmpty()) {
+            logger.info("Database already contains data. Skipping default initialization.");
+            alreadyInitializedThisJvm.set(true);
+            return;
+        }
+        initialize();
+        alreadyInitializedThisJvm.set(true);
     }
  
     private void _initialize() {
@@ -31,12 +46,6 @@ public class DataInitializer {
         EntityManager manager = EntityManagerHelper.getEntityManager();
         EntityTransaction tx = manager.getTransaction();
         tx.begin();
-
-        if (!isEmpty()) {
-            logger.info("Data already initialized, skipping.");
-            tx.rollback();
-            return;
-        }
 
         try {
             for (int i = 0; i < 2; i++) {
@@ -66,6 +75,7 @@ public class DataInitializer {
         } catch (Exception e) {
             tx.rollback();
             logger.severe(e.getMessage());
+            return;
         }
         tx.commit();
 
@@ -73,9 +83,8 @@ public class DataInitializer {
 
     public static boolean isEmpty() {
         EntityManager manager = EntityManagerHelper.getEntityManager();
-        Integer count = manager.createQuery("SELECT COUNT(a) FROM Admin a", Long.class).getSingleResult().intValue();
-        System.out.println("Admin count: " + count);
-        return count == 0;
+        Long count = manager.createQuery("SELECT COUNT(u) FROM User u", Long.class).getSingleResult();
+        return count == 0L;
     }
 }
  

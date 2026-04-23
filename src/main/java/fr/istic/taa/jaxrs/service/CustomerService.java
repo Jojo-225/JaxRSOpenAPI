@@ -11,7 +11,7 @@ public class CustomerService {
     public Customer createCustomer(CreateUserDto createUserDto){
         Customer customer = new Customer();
         customer.setLastName(createUserDto.getLastname());
-        customer.setFirstName(createUserDto.getLastname());
+        customer.setFirstName(createUserDto.getFirstname());
         customer.setDateOfBirth(createUserDto.getBirthdate());
         customer.setMail(createUserDto.getEmail());
         customer.setPassword(createUserDto.getPassword());
@@ -30,7 +30,7 @@ public class CustomerService {
     
     public Customer update(UpdateUserDto updateUserDto, Customer customer){
         customer.setLastName(updateUserDto.getLastname());
-        customer.setFirstName(updateUserDto.getLastname());
+        customer.setFirstName(updateUserDto.getFirstname());
         customer.setDateOfBirth(updateUserDto.getBirthdate());
         customer.setPassword(updateUserDto.getPass());
 
