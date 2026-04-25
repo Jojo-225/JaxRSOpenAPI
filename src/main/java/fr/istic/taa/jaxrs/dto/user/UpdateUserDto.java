@@ -5,14 +5,13 @@ public class UpdateUserDto {
 
     private String lastname;
     private String firstname;
-    // private String email;
     private LocalDate birthdate;
     private String password;
 
     public UpdateUserDto() {
     }
 
-    public UpdateUserDto(String lastname, String firstname, String email, LocalDate birthdate, String password) {
+    public UpdateUserDto(String lastname, String firstname, LocalDate birthdate, String password) {
         this.lastname = lastname;
         this.firstname = firstname;
         this.birthdate = birthdate;
@@ -35,19 +34,11 @@ public class UpdateUserDto {
         this.birthdate = birthdate;
     }
 
-    public String getPass() {
-        return password;
-    }
-
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setPass(String password) {
         this.password = password;
     }
 

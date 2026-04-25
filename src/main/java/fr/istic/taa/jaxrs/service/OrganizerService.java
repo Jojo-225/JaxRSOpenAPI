@@ -34,7 +34,7 @@ public class OrganizerService {
         organizer.setLastName(updateOrganizerDto.getLastname());
         organizer.setFirstName(updateOrganizerDto.getFirstname());
         organizer.setDateOfBirth(updateOrganizerDto.getBirthdate());
-        organizer.setPassword(updateOrganizerDto.getPass());
+        organizer.setPassword(updateOrganizerDto.getPassword());
 
         return organizerDao.update(organizer);
     }

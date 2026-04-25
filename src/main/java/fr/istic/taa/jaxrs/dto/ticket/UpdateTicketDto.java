@@ -8,7 +8,6 @@ public class UpdateTicketDto{
     private String title;
     private Integer capacity;
     private String statut;
-    private List<Long> customerIds = new ArrayList<>();
 
     public UpdateTicketDto() {
     }
@@ -42,22 +41,5 @@ public class UpdateTicketDto{
     public void setStatut(String statut) {
         this.statut = statut;
     }
-
-    public List<Long> getCustomerIds() {
-        return customerIds;
-    }
-
-    public void addCustomerId(Long customerId) {
-        this.customerIds.add(customerId);
-    }
-
-    public void removeCustomerId(Long customerId) {
-        this.customerIds.remove(customerId);
-    }
-
-    public void setCustomerIds(List<Long> customerIds) {
-        this.customerIds = customerIds;
-    }
-
 
 }

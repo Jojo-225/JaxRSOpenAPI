@@ -7,16 +7,15 @@ public class UpdateConcertDto {
     private String topic;
     private LocalDateTime date;
     private String description;
-    private Long organizerId;
+
     public UpdateConcertDto(){
 
     }
 
-    public UpdateConcertDto(String topic, LocalDateTime date, String description, Long organizerId) {
+    public UpdateConcertDto(String topic, LocalDateTime date, String description) {
         this.topic = topic;
         this.date = date;
         this.description = description;
-        this.organizerId = organizerId;
     }
 
     
@@ -32,14 +31,6 @@ public class UpdateConcertDto {
         return description;
     }
 
-    public Long getOrganizer() {
-        return organizerId;
-    }
-
-    public Long getOrganizerId() {
-        return organizerId;
-    }
-
     public void setTopic(String topic) {
         this.topic = topic;
     }
@@ -50,14 +41,6 @@ public class UpdateConcertDto {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setOrganizer(Long organizerId) {
-        this.organizerId = organizerId;
-    }
-
-    public void setOrganizerId(Long organizerId) {
-        this.organizerId = organizerId;
     }
 }
 

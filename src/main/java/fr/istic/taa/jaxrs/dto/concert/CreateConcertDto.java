@@ -29,11 +29,7 @@ public class CreateConcertDto {
     public String getDescription() {
         return description;
     }
-
-    public Long getOrganizer() {
-        return organizerId;
-    }
-
+    
     public Long getOrganizerId() {
         return organizerId;
     }
@@ -50,9 +46,6 @@ public class CreateConcertDto {
         this.description = description;
     }
 
-    public void setOrganizer(Long organizerId) {
-        this.organizerId = organizerId;
-    }
 
     public void setOrganizerId(Long organizerId) {
         this.organizerId = organizerId;

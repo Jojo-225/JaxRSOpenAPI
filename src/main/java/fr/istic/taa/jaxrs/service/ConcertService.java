@@ -13,7 +13,7 @@ public class ConcertService {
     private final OrganizerDao organizerDao = new OrganizerDao();
 
     public Concert createConcert(CreateConcertDto createConcertDto){
-        Organizer organizer = this.organizerDao.findOne(createConcertDto.getOrganizer());
+        Organizer organizer = this.organizerDao.findOne(createConcertDto.getOrganizerId());
        if(organizer == null){
         throw new IllegalArgumentException("Organizer not found");
        }

@@ -10,7 +10,7 @@ public class CreateTicketDto {
     private int capacity;
     private String statut;
     private Long concertId;
-    private List<Long> customerIds = new ArrayList<>();
+
 
     public CreateTicketDto() {
     }
@@ -46,36 +46,11 @@ public class CreateTicketDto {
         this.statut = statut;
     }
 
-    public Long getConcert() {
-        return concertId;
-    }
-
     public Long getConcertId() {
         return concertId;
-    }
-
-    public void setConcert(Long concertId) {
-        this.concertId = concertId;
     }
 
     public void setConcertId(Long concertId) {
         this.concertId = concertId;
     }
-
-    public List<Long> getCustomerIds() {
-        return customerIds;
-    }
-
-    public void addCustomerId(Long customerId) {
-        this.customerIds.add(customerId);
-    }
-
-    public void removeCustomerId(Long customerId) {
-        this.customerIds.remove(customerId);
-    }
-
-    public void setCustomerIds(List<Long> customerIds) {
-        this.customerIds = customerIds;
-    }
-
 }

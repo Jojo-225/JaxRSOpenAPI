@@ -13,7 +13,7 @@ public class TicketService {
 
     public Ticket createTicket(CreateTicketDto createTicketDto){
 
-        Concert concert = this.concertDao.findOne(createTicketDto.getConcert());
+        Concert concert = this.concertDao.findOne(createTicketDto.getConcertId());
         if(concert == null){
             throw new IllegalArgumentException("Concert not found");
         }

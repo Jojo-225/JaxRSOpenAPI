@@ -32,8 +32,7 @@ public class CustomerService {
         customer.setLastName(updateUserDto.getLastname());
         customer.setFirstName(updateUserDto.getFirstname());
         customer.setDateOfBirth(updateUserDto.getBirthdate());
-        customer.setPassword(updateUserDto.getPass());
-
+        customer.setPassword(updateUserDto.getPassword());
         return customerDao.update(customer);
     }
 
