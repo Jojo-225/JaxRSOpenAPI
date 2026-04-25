@@ -13,8 +13,10 @@ import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 
+import java.security.Principal;
 import java.util.Arrays;
 
 @Provider
@@ -58,7 +60,6 @@ public class JWTAuthFilter implements ContainerRequestFilter {
 
         RolesAllowed rolesAllowed = getRolesAllowed();
 
-        // Si la route n'a pas @RolesAllowed => pas besoin de token
         if (rolesAllowed == null) {
             return;
         }
@@ -80,10 +81,33 @@ public class JWTAuthFilter implements ContainerRequestFilter {
 
             if (!hasRole) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                return;
             }
 
+            SecurityContext originalContext = requestContext.getSecurityContext();
+            requestContext.setSecurityContext(new SecurityContext() {
+                @Override
+                public Principal getUserPrincipal() {
+                    return payload;
+                }
+
+                @Override
+                public boolean isUserInRole(String role) {
+                    return payload.roles().contains(role);
+                }
+
+                @Override
+                public boolean isSecure() {
+                    return originalContext != null && originalContext.isSecure();
+                }
+
+                @Override
+                public String getAuthenticationScheme() {
+                    return "Bearer";
+                }
+            });
+
         } catch (JwtException e) {
-            // token invalide / expiré
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }

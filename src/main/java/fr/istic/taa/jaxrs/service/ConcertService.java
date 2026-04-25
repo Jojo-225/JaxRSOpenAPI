@@ -53,4 +53,8 @@ public class ConcertService {
     public void delete(Concert concert){
         concertDao.delete(concert);
     }
+
+    public List<Concert> findConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
+        return concertDao.findConcertsByCriteria(topic, date, description, artistName, organizerName);
+    }
 }
