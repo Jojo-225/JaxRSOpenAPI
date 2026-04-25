@@ -6,14 +6,14 @@ import java.util.ArrayList;
 public class UpdateTicketDto{
 
     private String title;
-    private int capacity;
+    private Integer capacity;
     private String statut;
     private List<Long> customerIds = new ArrayList<>();
 
     public UpdateTicketDto() {
     }
     
-    public UpdateTicketDto(String title, int capacity, String statut) {
+    public UpdateTicketDto(String title, Integer capacity, String statut) {
         this.title = title;
         this.capacity = capacity;
         this.statut = statut;
@@ -27,11 +27,11 @@ public class UpdateTicketDto{
         this.title = title;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 

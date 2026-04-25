@@ -1,14 +1,12 @@
 package fr.istic.taa.jaxrs.dto.artist;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CreateArtistDto {
     private String name;
-    private List<Long> concertIds = new ArrayList<>();
+    private Long concertId;
 
-    public CreateArtistDto(String name, List<Long> concertIds){
+    public CreateArtistDto(String name, Long concertId){
         this.name=name;
-        this.concertIds=concertIds;
+        this.concertId = concertId;
     }
 
     public CreateArtistDto() {
@@ -22,20 +20,12 @@ public class CreateArtistDto {
         this.name = name;
     }
 
-    public List<Long> getConcertIds() {
-        return concertIds;
-    }
-
-    public void addConcertId(Long concertId) {
-        this.concertIds.add(concertId);
-    }
-
-    public void removeConcertId(Long concertId) {
-        this.concertIds.remove(concertId);
+    public Long getConcertId() {
+        return this.concertId;
     }
     
-    public void setConcertIds(List<Long> concertIds) {
-        this.concertIds = concertIds;
+    public void setConcertId(Long concertId) {
+        this.concertId = concertId;
     }   
 
 }

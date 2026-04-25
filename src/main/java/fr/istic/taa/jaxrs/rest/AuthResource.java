@@ -30,7 +30,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import java.util.Map;
 import java.util.Set;
 
-@Path("/auth")
+@Path("/api/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "Auth", description = "Authentication and registration endpoints")

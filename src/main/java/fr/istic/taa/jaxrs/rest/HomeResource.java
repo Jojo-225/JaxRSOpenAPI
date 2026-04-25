@@ -15,7 +15,7 @@ import java.util.Map;
 
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 
-@Path("/api/home")
+@Path("/api")
 @Produces("application/json")
 @Tag(name = "Home", description = "Home page endpoints")
 public class HomeResource {
@@ -82,5 +82,4 @@ public class HomeResource {
             .collect(Collectors.toList())).build();
     }
     
-
 }

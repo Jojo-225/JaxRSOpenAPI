@@ -41,9 +41,15 @@ public class TicketService {
     }
 
     public Ticket update(UpdateTicketDto updateTicketDto, Ticket ticket) {
-        ticket.setTitle(updateTicketDto.getTitle());
-        ticket.setCapacity(updateTicketDto.getCapacity());
-        ticket.setStatut(updateTicketDto.getStatut());
+        if (updateTicketDto.getTitle() != null) {
+            ticket.setTitle(updateTicketDto.getTitle());
+        }
+        if (updateTicketDto.getCapacity() != null) {
+            ticket.setCapacity(updateTicketDto.getCapacity());
+        }
+        if (updateTicketDto.getStatut() != null) {
+            ticket.setStatut(updateTicketDto.getStatut());
+        }
        
         return ticketDao.update(ticket);
     }
