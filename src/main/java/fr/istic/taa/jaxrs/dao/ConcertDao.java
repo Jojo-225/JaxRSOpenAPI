@@ -11,6 +11,18 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
         this.setClazz(Concert.class);
     }   
 
+    public List<Concert> findLatestConcerts(int limit) {
+        TypedQuery<Concert> query = this.entityManager.createQuery("SELECT c FROM Concert c ORDER BY c.date DESC", Concert.class);
+        query.setMaxResults(limit);
+        return query.getResultList();
+    }
+
+    public List<Concert> findIncomingConcerts(int limit) {
+        TypedQuery<Concert> query = this.entityManager.createQuery("SELECT c FROM Concert c WHERE c.date > CURRENT_DATE ORDER BY c.date ASC", Concert.class);
+        query.setMaxResults(limit);
+        return query.getResultList();
+    }
+
     // Critère pour trouver les concerts en fonction du topic, de la date, de la description,  du nom d'un artiste,  et ou d'un organisateur
     public List<Concert> findConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
         StringBuilder queryBuilder = new StringBuilder("SELECT c FROM Concert c WHERE 1=1");

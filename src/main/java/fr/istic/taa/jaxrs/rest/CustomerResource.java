@@ -64,7 +64,7 @@ public class CustomerResource {
     @POST
     @Path("/")
     @RolesAllowed({"ADMIN", "ORGANIZER"})
-     @Operation(summary = "Create a new customer", description = "Creates a new customer", responses = {
+    @Operation(summary = "Create a new customer", description = "Creates a new customer", responses = {
         @ApiResponse(responseCode = "201", description = "Customer created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
@@ -85,7 +85,7 @@ public class CustomerResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"ADMIN", "ORGANIZER"})
-     @Operation(summary = "Update an existing customer", description = "Updates an existing customer", responses = {
+    @Operation(summary = "Update an existing customer", description = "Updates an existing customer", responses = {
         @ApiResponse(responseCode = "200", description = "Customer updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
         @ApiResponse(responseCode = "404", description = "Customer not found")
@@ -106,7 +106,7 @@ public class CustomerResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"ADMIN", "ORGANIZER"})
-      @Operation(summary = "Delete an customer", description = "Deletes an customer if there are no associated tickets", responses = {
+    @Operation(summary = "Delete an customer", description = "Deletes an customer if there are no associated tickets", responses = {
         @ApiResponse(responseCode = "204", description = "Customer deleted successfully"),
         @ApiResponse(responseCode = "400", description = "Cannot delete customer with associated tickets"),
         @ApiResponse(responseCode = "404", description = "Customer not found")

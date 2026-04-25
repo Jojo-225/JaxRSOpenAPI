@@ -15,7 +15,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/artists")
+@Path("/organise/artists")
 @Produces({"application/json"})
 public class ArtistResource {
     private final ArtistService artistService = new ArtistService();

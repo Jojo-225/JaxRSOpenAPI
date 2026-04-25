@@ -22,6 +22,9 @@ import jakarta.ws.rs.core.Response;
 import java.util.Map;
 import java.util.Set;
 
+import fr.istic.taa.jaxrs.dto.user.LoginDto;
+import fr.istic.taa.jaxrs.service.UserService;
+
 @Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -30,10 +33,10 @@ public class AuthResource {
 
     private final UserDao userDao = new UserDao();
 
-    public static class LoginRequest {
-        public String mail;
-        public String password;
-    }
+    // public static class LoginRequest {
+    //     public String mail;
+    //     public String password;
+    // }
 
     @POST
     @Path("/login")
@@ -42,16 +45,16 @@ public class AuthResource {
             @ApiResponse(responseCode = "400", description = "Missing credentials"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials")
     })
-    public Response login(LoginRequest req) {
+    public Response login(LoginDto loginDto) {
 
-        if (req == null || req.mail == null || req.password == null
-                || req.mail.isBlank() || req.password.isBlank()) {
+        if (loginDto == null || loginDto.getEmail() == null || loginDto.getPassword() == null
+                || loginDto.getEmail().isBlank() || loginDto.getPassword().isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", "mail/password required"))
                     .build();
         }
 
-        User user = userDao.findByEmail(req.mail);
+        User user = userDao.findByEmail(loginDto.getEmail());
 
         if (user == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -59,7 +62,7 @@ public class AuthResource {
                     .build();
         }
 
-        if (user.getPassword() == null || !PasswordUtil.verify(req.password, user.getPassword())) {
+        if (user.getPassword() == null || !PasswordUtil.verify(loginDto.getPassword(), user.getPassword())) {
             return Response.status(Response.Status.UNAUTHORIZED)
                     .entity(Map.of("error", "invalid credentials"))
                     .build();

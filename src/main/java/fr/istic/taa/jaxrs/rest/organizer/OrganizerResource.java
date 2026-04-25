@@ -22,7 +22,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/organizers")
+@Path("/organise/organizers")
 @Produces({"application/json"})
 @Tag(name = "Organizer", description = "API for managing organizers")
 @SecurityRequirement(name = "bearerAuth")
@@ -70,7 +70,7 @@ public class OrganizerResource {
         }
         try {
             Organizer organizer = organizerService.createOrganizer(createOrganizerDto);
-            return Response.created(URI.create("/organizer/"+organizer.getId())).entity(organizer).build();
+            return Response.created(URI.create("/organise/organizers/"+organizer.getId())).entity(organizer).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to create organizer").build();
         }

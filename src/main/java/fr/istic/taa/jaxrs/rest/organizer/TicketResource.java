@@ -16,7 +16,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
-@Path("/tickets")
+@Path("/organise/tickets")
 @Produces({"application/json"})
 public class TicketResource {
     private final TicketDao dao = new TicketDao(); 
@@ -70,7 +70,7 @@ public class TicketResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteTicket (@PathParam("") Long id) {
+    public Response deleteTicket (@PathParam("id") Long id) {
         Ticket existingTicket = dao.findOne(id);
         if (existingTicket == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

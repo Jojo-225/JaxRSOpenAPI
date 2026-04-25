@@ -35,6 +35,10 @@ public class TicketService {
         return ticketDao.findAll();
     }
 
+    public List<Ticket> getMyTickets() {
+        return ticketDao.findByUserId(AuthService.getCurrentUserId());
+    }
+
     public Ticket update(UpdateTicketDto updateTicketDto, Ticket ticket) {
         ticket.setTitle(updateTicketDto.getTitle());
         ticket.setCapacity(updateTicketDto.getCapacity());

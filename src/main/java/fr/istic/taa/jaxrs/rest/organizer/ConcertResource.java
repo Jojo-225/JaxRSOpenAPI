@@ -16,7 +16,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 
 
-@Path("/concerts")
+@Path("/organise/concerts")
 @Produces("application/json")
 public class ConcertResource {
 
@@ -67,14 +67,14 @@ public class ConcertResource {
 
     @DELETE
     @Path("{id}")
-    public Response deleteConcert(@PathParam("") Long id) {
+    public Response deleteConcert(@PathParam("id") Long id) {
         Concert existingConcert = concertService.findOne(id);
         if (existingConcert == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         try{
             concertService.delete(existingConcert);
-            return Response.noContent().entity("Ticket deleted successfully").build();
+            return Response.noContent().entity("Concert deleted successfully").build();
         }catch(RuntimeException e){
             return Response.status(Response.Status.BAD_REQUEST).entity("Failed to delete concert").build();
         }

@@ -35,6 +35,14 @@ public class ConcertService {
         return concertDao.findAll();
     }
 
+    public List<Concert> getLatestConcerts() {
+        return concertDao.findLatestConcerts(10); // Get the 10 latest concerts
+    }
+
+    public List<Concert> getIncomingConcerts() {
+        return concertDao.findIncomingConcerts(10); // Get the 10 upcoming concerts
+    }
+
     public Concert update(UpdateConcertDto updateConcertDto, Concert concert){
         concert.setTopic(updateConcertDto.getTopic());
         concert.setDate(updateConcertDto.getDate());
