@@ -13,6 +13,7 @@ import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import fr.istic.taa.jaxrs.utils.PasswordUtil;
 
 
 
@@ -21,6 +22,8 @@ public class DataInitializer {
 
     private static final Logger logger = Logger.getLogger(DataInitializer.class.getName());
     private static final AtomicBoolean alreadyInitializedThisJvm = new AtomicBoolean(false);
+    
+
  
     private DataInitializer() {}
  
@@ -49,12 +52,12 @@ public class DataInitializer {
 
         try {
             for (int i = 0; i < 2; i++) {
-				Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", "password"+i);
+				Admin admin = new Admin("admin"+i, "admin"+i, null, "admin"+i+"@test.xyz", PasswordUtil.hash("password"+i));
 				manager.persist(admin);
 			}
 
 			for (int i = 0; i < 5; i++) {
-				Organizer organizer = new Organizer("organizer"+i, "organizer"+i, null, "organizer"+i+"@test.xyz", "password"+i);
+				Organizer organizer = new Organizer("organizer"+i, "organizer"+i, null, "organizer"+i+"@test.xyz", PasswordUtil.hash("password"+i));
 				manager.persist(organizer);
 
 				Concert concert = new Concert("Concert "+i, LocalDateTime.now(), "Description du concert "+i, organizer);
@@ -69,7 +72,7 @@ public class DataInitializer {
 			}
 			
 			for (int i = 0; i < 50; i++) {
-				Customer customer = new Customer("CLName"+i, "CFName"+i, null,"customer"+i+"@test.xyz", "password");
+				Customer customer = new Customer("CLName"+i, "CFName"+i, null,"customer"+i+"@test.xyz", PasswordUtil.hash("password"+i));
 				manager.persist(customer);
 			}
         } catch (Exception e) {

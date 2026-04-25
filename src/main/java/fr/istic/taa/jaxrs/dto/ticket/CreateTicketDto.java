@@ -1,8 +1,5 @@
 package fr.istic.taa.jaxrs.dto.ticket;
 
-import java.util.List;  
-import java.util.ArrayList;  
-
 
 
 public class CreateTicketDto {
