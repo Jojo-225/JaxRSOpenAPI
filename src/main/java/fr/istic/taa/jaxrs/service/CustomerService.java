@@ -12,7 +12,7 @@ public class CustomerService {
         Customer customer = new Customer();
         customer.setLastName(createUserDto.getLastname());
         customer.setFirstName(createUserDto.getFirstname());
-        customer.setDateOfBirth(createUserDto.getBirthdate());
+        customer.setDateOfBirth(createUserDto.getDateOfBirth());
         customer.setMail(createUserDto.getEmail());
         customer.setPassword(createUserDto.getPassword());
 

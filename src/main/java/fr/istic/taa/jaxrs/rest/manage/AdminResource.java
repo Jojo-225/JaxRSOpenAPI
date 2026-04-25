@@ -72,7 +72,7 @@ public class AdminResource {
         Admin admin = new Admin();
         admin.setLastName(dto.getLastname());
         admin.setFirstName(dto.getFirstname());
-        admin.setDateOfBirth(dto.getBirthdate());
+        admin.setDateOfBirth(dto.getDateOfBirth());
         admin.setMail(dto.getEmail());
         admin.setPassword(dto.getPassword());
         adminService.create(admin);

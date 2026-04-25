@@ -11,7 +11,7 @@ public class OrganizerService {
         Organizer organizer = new Organizer();
         organizer.setLastName(createOrganizerDto.getLastname());
         organizer.setFirstName(createOrganizerDto.getFirstname());
-        organizer.setDateOfBirth(createOrganizerDto.getBirthdate());
+        organizer.setDateOfBirth(createOrganizerDto.getDateOfBirth());
         organizer.setMail(createOrganizerDto.getEmail());
         organizer.setPassword(createOrganizerDto.getPassword());
 

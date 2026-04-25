@@ -15,6 +15,7 @@ import fr.istic.taa.jaxrs.utils.JwtUtil;
 import fr.istic.taa.jaxrs.utils.PasswordUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
@@ -84,13 +85,14 @@ public class AuthResource {
     })
     public Response register(CreateUserDto dto) {
         if (dto == null || dto.getEmail() == null || dto.getPassword() == null
-                || dto.getFirstname() == null || dto.getLastname() == null || dto.getBirthdate() == null
+                || dto.getFirstname() == null || dto.getLastname() == null || dto.getDateOfBirth() == null || dto.getRole() == null
                 || dto.getEmail().isBlank() || dto.getPassword().isBlank()
-                || dto.getFirstname().isBlank() || dto.getLastname().isBlank()) {
+                || dto.getFirstname().isBlank() || dto.getLastname().isBlank() || dto.getRole().isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Map.of("error", "missing fields"))
                     .build();
         }
+
 
         User existing = userDao.findByEmail(dto.getEmail());
         if (existing != null) {
@@ -100,16 +102,33 @@ public class AuthResource {
         }
 
         String hashed = PasswordUtil.hash(dto.getPassword());
-
-        Customer newUser = new Customer(
+    
+        if (dto.getRole().equalsIgnoreCase("CUSTOMER")) {
+            Customer newUser = new Customer(
                 dto.getLastname(),
                 dto.getFirstname(),
+                dto.getDateOfBirth(),
                 dto.getEmail(),
                 hashed
-        );
+            );
+            userDao.save(newUser);
+        } else if (dto.getRole().equalsIgnoreCase("ORGANIZER")) {
+            Organizer newUser = new Organizer(
+                dto.getLastname(),
+                dto.getFirstname(),
+                dto.getDateOfBirth(),
+                dto.getEmail(),
+                hashed
+            );
+            userDao.save(newUser);
+        }else {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "invalid role, must be CUSTOMER or ORGANIZER"))
+                    .build();
+        }
 
-        userDao.save(newUser);
 
+        User newUser = userDao.findByEmail(dto.getEmail());
         Set<String> roles = rolesFromUser(newUser);
         String token = JwtUtil.generateToken(newUser.getMail(), roles);
 
@@ -137,6 +156,27 @@ public class AuthResource {
         return Response.ok(dto).build();
     }
 
+    @POST
+    @Path("/logout")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Logout", description = "Logs out the authenticated user by invalidating the JWT token on the client side (no server-side action since JWT is stateless)", responses = {
+            @ApiResponse(responseCode = "200", description = "Logout successful"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public Response logout(@Context SecurityContext securityContext) {
+        User currentUser = currentUserService.getCurrentUser(securityContext);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(Map.of("error", "unauthorized"))
+                    .build();
+        }   
+
+        // Since JWT is stateless, we cannot invalidate the token server-side.
+        // The client should simply discard the token to "log out".
+        return Response.ok(Map.of("message", "logged out")).build();
+    }
+
+
     @GET
     @Path("/me/role")
     @RolesAllowed({"ADMIN", "ORGANIZER", "CUSTOMER"})
@@ -161,4 +201,7 @@ public class AuthResource {
         if (u instanceof Customer) return Set.of("CUSTOMER");
         return Set.of("USER");
     }
+
+
+
 }

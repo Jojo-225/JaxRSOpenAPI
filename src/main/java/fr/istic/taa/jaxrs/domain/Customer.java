@@ -1,4 +1,5 @@
 package fr.istic.taa.jaxrs.domain;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class Customer extends User {
         super();
     }
     
-    public Customer(String lastName, String firstName, String mail, String password) {
-        super(lastName, firstName, null, mail, password);
+    public Customer(String lastName, String firstName, LocalDate dateOfBirth, String mail, String password) {
+        super(lastName, firstName, dateOfBirth, mail, password);
     }
 
     @ManyToMany(mappedBy = "customers", cascade = jakarta.persistence.CascadeType.PERSIST)

@@ -69,7 +69,7 @@ public class DataInitializer {
 			}
 			
 			for (int i = 0; i < 50; i++) {
-				Customer customer = new Customer("CLName"+i, "CFName"+i, "customer"+i+"@test.xyz", "password");
+				Customer customer = new Customer("CLName"+i, "CFName"+i, null,"customer"+i+"@test.xyz", "password");
 				manager.persist(customer);
 			}
         } catch (Exception e) {

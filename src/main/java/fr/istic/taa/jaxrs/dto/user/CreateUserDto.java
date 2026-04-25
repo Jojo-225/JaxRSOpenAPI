@@ -4,19 +4,22 @@ import java.time.LocalDate;
 public class CreateUserDto {
     private String lastname;
     private String firstname;
-    private LocalDate birthdate;
+    private LocalDate dateOfBirth;
     private String email;
     private String password;
+    private String role;
 
     public CreateUserDto() {
     }
 
-    public CreateUserDto(String lastname, String firstname, LocalDate birthdate, String email, String password) {
+    public CreateUserDto(String lastname, String firstname, LocalDate dateOfBirth, String email, String password, String role) {
         this.lastname = lastname;
         this.firstname = firstname;
-        this.birthdate = birthdate;
+        this.dateOfBirth = dateOfBirth;
         this.email = email;
         this.password = password;
+        this.role = role;
+    
     }
 
     public String getLastname() {
@@ -51,12 +54,20 @@ public class CreateUserDto {
         this.firstname = firstname;
     }
 
-    public LocalDate getBirthdate() {
-        return birthdate;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getRole() {
+        return role;
+    }       
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
 }
