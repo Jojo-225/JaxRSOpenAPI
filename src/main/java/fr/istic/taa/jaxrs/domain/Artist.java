@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +19,11 @@ public class Artist implements Serializable {
     private List<Concert> concerts = new ArrayList<>();
 
     public Artist() {
+    }
+    
+    public Artist( String name, List<Concert> concerts) {
+        this.name = name;
+        this.concerts = concerts;
     }
 
     public Artist(String name) {
@@ -42,6 +49,7 @@ public class Artist implements Serializable {
     }
 
     @ManyToMany
+    @JsonBackReference
     public List<Concert> getConcerts() {
         return concerts;
     }

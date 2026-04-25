@@ -2,7 +2,8 @@ package fr.istic.taa.jaxrs.domain;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.DiscriminatorValue;
@@ -11,7 +12,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("ORGANIZER")
-public class Organizer extends User implements Serializable {
+public class Organizer extends User {
     private List<Concert> concertsOrganised = new ArrayList<>();
 
     public Organizer() {
@@ -22,6 +23,7 @@ public class Organizer extends User implements Serializable {
     }
 
     @OneToMany(mappedBy = "organizer", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Concert> getconcerts() {
         return concertsOrganised;
     }

@@ -10,7 +10,16 @@ public class AdminService {
         Admin a = dao.findOne(id);
         return a;
     }
+
     public void create(Admin admin) {
         dao.save(admin);
+    }
+
+    public void update(Admin admin) {
+        dao.update(admin);
+    }
+
+    public void delete(Admin admin) {
+        dao.delete(admin);
     }
 }

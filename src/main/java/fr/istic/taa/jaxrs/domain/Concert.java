@@ -12,6 +12,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Concert implements Serializable {
@@ -23,6 +25,10 @@ public class Concert implements Serializable {
     private Organizer organizer;
     private List<Ticket> tickets = new ArrayList<>();
     private List<Artist> artists = new ArrayList<>();
+
+    public Concert(){
+        
+    }
 
     public Concert(String topic, LocalDateTime date, String description, Organizer organizer) {
         this.topic = topic;
@@ -54,6 +60,7 @@ public class Concert implements Serializable {
     }
 
     @ManyToOne
+    @JsonBackReference
     public Organizer getOrganizer() {
         return organizer;
     }
@@ -75,6 +82,7 @@ public class Concert implements Serializable {
     }
 
     @OneToMany(mappedBy = "concert", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Ticket> getTickets() {
         return tickets;
     }
@@ -92,6 +100,7 @@ public class Concert implements Serializable {
     }
 
    @ManyToMany (mappedBy = "concerts", cascade = CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Artist> getArtists() {
         return artists;
     }

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +24,7 @@ public class Ticket  implements Serializable{
 
     public Ticket() {
     }
-
+    
     public Ticket(String title, int capacity, String statut, Concert concert) {
         this.title = title;
         this.capacity = capacity;
@@ -65,6 +67,7 @@ public class Ticket  implements Serializable{
     }
 
     @ManyToOne
+    @JsonBackReference
     public Concert getConcert() {
         return concert;
     }
@@ -74,6 +77,7 @@ public class Ticket  implements Serializable{
     }
 
     @ManyToMany
+    @JsonBackReference
     public List<Customer> getCustomers() {
         return customers;
     }

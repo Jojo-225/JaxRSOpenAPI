@@ -1,7 +1,9 @@
 package fr.istic.taa.jaxrs.domain;
-import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -9,15 +11,20 @@ import jakarta.persistence.ManyToMany;
 
 @Entity
 @DiscriminatorValue("CUSTOMER")
-public class Customer extends User implements Serializable {
+public class Customer extends User {
 
     private List<Ticket> tickets = new ArrayList<>();
+
+    public Customer() {
+        super();
+    }
     
-    public Customer(String lastName, String firstName, String mail, String password) {
-        super(lastName, firstName, null, mail, password);
+    public Customer(String lastName, String firstName, LocalDate dateOfBirth, String mail, String password) {
+        super(lastName, firstName, dateOfBirth, mail, password);
     }
 
-    @ManyToMany(mappedBy = "customers")
+    @ManyToMany(mappedBy = "customers", cascade = jakarta.persistence.CascadeType.PERSIST)
+    @JsonManagedReference
     public List<Ticket> getTickets() {
         return tickets;
     }
