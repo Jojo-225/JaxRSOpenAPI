@@ -1,4 +1,4 @@
-package fr.istic.taa.jaxrs.rest.organizer;
+package fr.istic.taa.jaxrs.rest.manage;
 
 import java.net.URI;
 
@@ -24,7 +24,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/organise/organizers")
 @Produces({"application/json"})
-@Tag(name = "Organizer", description = "API for managing organizers")
+@Tag(name = "Manage - Organizers", description = "API for managing organizers")
 @SecurityRequirement(name = "bearerAuth")
 @RolesAllowed("ORGANIZER")
 public class OrganizerResource {

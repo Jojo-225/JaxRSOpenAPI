@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/manage/admin")
 @Produces({"application/json"})
-@Tag(name = "Admin", description = "API for managing administrators")
+@Tag(name = "Manage - Administrators", description = "API for managing administrators")
 @SecurityRequirement(name = "bearerAuth")
 @RolesAllowed("ADMIN")
 public class AdminResource {

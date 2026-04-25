@@ -17,7 +17,7 @@ import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 
 @Path("/api")
 @Produces("application/json")
-@Tag(name = "Home", description = "Home page endpoints")
+@Tag(name = "Home guess", description = "Home page endpoints")
 public class HomeResource {
 
     private final ConcertService concertService = new ConcertService();
