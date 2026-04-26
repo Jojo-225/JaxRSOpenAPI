@@ -1,149 +1,221 @@
-## JaxRS + openAPI
+# Concert Ticketing API (JAX-RS + OpenAPI)
 
-1. Import this project in your IDE, 
-2. Start the database
-3. Start the database viewer
-4. Start the backend. There is a main class to start the backend
+API REST de gestion de concerts, billetterie et utilisateurs (admin, organisateur, customer), construite avec **JAX-RS (Resteasy)**, **Hibernate/JPA**, **HSQLDB**, et documentée avec **OpenAPI/Swagger**.
 
+## Equipe
 
+Par :
 
+- Fulbert SOSSA
+- Eunice OYOTODE
 
-# Task Open API Integration 
+## Objectif
 
-Now, we would like to ensure that our API can be discovered. The OpenAPI Initiative (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. 
+Le projet couvre:
 
-APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
+- authentification JWT (`/api/auth`),
+- actions client (profil, tickets, achat),
+- back-office organisateur (concerts, billets, artistes, dashboard),
+- endpoints d'administration.
 
-To do this integration first, I already add a dependencies to openAPI libraries. 
+## Stack technique
 
-```xml
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-jaxrs2-jakarta</artifactId>
-			<version>2.2.15</version>
-		</dependency>
+- Java 15
+- Maven
+- JAX-RS / Resteasy (Jakarta)
+- Hibernate JPA
+- HSQLDB (local)
+- Swagger/OpenAPI v3
+- JWT (`jjwt`) + BCrypt
 
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-jaxrs2-servlet-initializer-v2</artifactId>
-			<version>2.2.15</version>
-		</dependency>
+## Architecture (vue rapide)
+
+`src/main/java/fr/istic/taa/jaxrs`:
+
+- `domain/`: entités métier (`User`, `Organizer`, `Concert`, `Ticket`, ...)
+- `dao/`: accès données JPA
+- `service/`: logique applicative
+- `dto/`: DTO requête/réponse + mappers
+- `filters/`: sécurité JWT (`JWTAuthFilter`)
+- `rest/`: ressources API (public, auth, customer actions)
+- `rest/organizer/`: back-office organisateur
+- `rest/manage/`: endpoints de gestion
+
+## Démarrage rapide
+
+Consulte le guide complet: [install.md](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/install.md)
+
+Commandes rapides:
+
+### Windows
+
+```powershell
+.\run-all.bat
 ```
 
-Next you have to add OpenAPI Resource to your application
+### Linux/macOS
 
-Your application could be something like that. 
+```bash
+chmod +x run-all.sh
+./run-all.sh
+```
 
-```java
-@ApplicationPath("/")
-public class RestApplication extends Application {
+## URLs principales
 
-	@Override
-	public Set<Class<?>> getClasses() {
-		final Set<Class<?>> resources = new HashSet<>();
+- API: `http://localhost:8080`
+- OpenAPI JSON: `http://localhost:8080/openapi.json`
+- Swagger UI: `http://localhost:8080/api/docs`
 
+## Authentification
 
-		// SWAGGER endpoints
-		resources.add(OpenApiResource.class);
+### Login
 
-        //Your own resources. 
-        resources.add(PersonResource.class);
-....
-		return resources;
-	}
+`POST /api/auth/login`
+
+Payload:
+
+```json
+{
+  "email": "organizer0@test.xyz",
+  "password": "password0"
 }
 ```
 
-Next start your server, you must have your api description available at [http://localhost:8080/openapi.json](http://localhost:8080/openapi.json)
+Réponse: token JWT + rôles.
 
-### Integrate Swagger UI. 
+### En-tête requis
 
-Next we have to integrate Swagger UI. We will first download it.
-https://github.com/swagger-api/swagger-ui
-
-Copy dist folder content in src/main/webapp/swagger in your project. 
-
-Edit index.html file to automatically load your openapi.json file. 
-
-At the end of the index.html, your must have something like that.
-
-```js
-   // Build a system
-      const ui = SwaggerUIBundle({
-        url: "http://localhost:8080/openapi.json",
-        dom_id: '#swagger-ui',
-        
-        ...
+```http
+Authorization: Bearer <token>
 ```
 
-Next add a new resources to create a simple http server when your try to access to http://localhost:8080/api/.
+## Modules d'endpoints
 
-This new resources can be developped as follows
+## `Auth`
 
-```java
-package app.web.rest;
+Base path: `/api/auth`
 
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.util.logging.Logger;
+- `POST /login`
+- `POST /register`
+- `POST /logout`
+- `GET /me`
+- `GET /me/role`
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+## `Home`
 
-@Path("/api")
-public class SwaggerResource {
+Base path: `/api`
 
-    private static final Logger logger = Logger.getLogger(SwaggerResource.class.getName());
+- `GET /latestConcerts`
+- `GET /incomingConcerts`
+- `GET /search`
+- `GET /{id}`
+- `GET /mytickets`
 
-    @GET
-    public byte[] Get1() {
-        try {
-            return Files.readAllBytes(FileSystems.getDefault().getPath("src/main/webapp/swagger/index.html"));
-        } catch (IOException e) {
-            return null;
-        }
-    }
+## `Customer Actions`
 
-    @GET
-    @Path("{path:.*}")
-    public byte[] Get(@PathParam("path") String path) {
-        try {
-            return Files.readAllBytes(FileSystems.getDefault().getPath("src/main/webapp/swagger/"+path));
-        } catch (IOException e) {
-            return null;
-        }
-    }
+Base path: `/api/custom`
 
-}
+- `GET /profile`
+- `GET /mytickets`
+- `POST /buyticket`
+
+Ces endpoints sont JWT-protégés.
+
+## `Organizer Back Office`
+
+### Dashboard
+
+Base path: `/organise/dashboard`
+
+- `GET /` (stats + concerts à venir + quick actions)
+
+### Concerts
+
+Base path: `/organise/concerts`
+
+- `GET /`
+- `GET /{id}`
+- `POST /`
+- `PUT /{id}`
+- `DELETE /{id}`
+- `GET /{id}/customers`
+- `GET /upcoming`
+- `GET /stats/dashboard`
+
+### Tickets
+
+Base path: `/organise/tickets`
+
+- `GET /`
+- `GET /{id}`
+- `GET /concert/{concertId}`
+- `POST /concert/{concertId}`
+- `POST /`
+- `PUT /{id}`
+- `DELETE /{id}`
+
+### Artists
+
+Base path: `/organise/artists`
+
+- `GET /`
+- `GET /{id}`
+- `GET /concert/{concertId}`
+- `POST /concert/{concertId}`
+- `POST /{artistId}/concert/{concertId}`
+- `PUT /{id}`
+- `DELETE /{artistId}/concert/{concertId}`
+
+## `Manage`
+
+- `/manage/admin`
+- `/organise/organizers`
+
+## Sécurité et rôles
+
+Le filtre JWT (`JWTAuthFilter`) protège les routes annotées `@RolesAllowed`.
+
+Rôles principaux:
+
+- `ADMIN`
+- `ORGANIZER`
+- `CUSTOMER`
+
+Le rôle utilisateur provient du type concret (`dtype`) et des claims JWT.
+
+## Données de démo
+
+Le projet initialise des données au démarrage en environnement dev:
+
+- admins (`adminX@test.xyz`)
+- organizers (`organizerX@test.xyz`)
+- customers (`customerX@test.xyz`)
+- concerts / artistes / tickets
+
+Mots de passe seed usuels: `password0`, `password1`, etc.
+
+## Configuration base de données
+
+Fichier: `src/main/resources/META-INF/persistence.xml`
+
+- `dev`: HSQLDB (`drop-and-create`)
+- `prod`: HSQLDB (`update`)
+- `mysql`: MySQL (`update`)
+
+## Scripts utilitaires
+
+- [run-all.bat](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/run-all.bat)
+- [run-all.sh](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/run-all.sh)
+- `run-hsqldb-server.bat/.sh`
+- `show-hsqldb.bat/.sh`
+
+## Vérification locale
+
+```bash
+mvn -DskipTests compile
 ```
 
-Add this new resources in your application
+## Remarques
 
-```java
-@ApplicationPath("/")
-public class RestApplication extends Application {
-
-
-	@Override
-	public Set<Class<?>> getClasses() {
-		final Set<Class<?>> resources = new HashSet<>();
-
-
-		// SWAGGER endpoints
-		resources.add(OpenApiResource.class);
-		resources.add(PersonResource.class);
-        //NEW LINE TO ADD
-		resources.add(SwaggerResource.class);
-
-		return resources;
-	}
-}
-```
-
-Restart your server and access to http://localhost:8080/api/, you should access to a swagger ui instance that provides documentation on your api. 
-
-You can follow this guide to show how you can specialise the documentation through annotations.
-
-https://github.com/swagger-api/swagger-samples/blob/2.0/java/java-resteasy-appclasses/src/main/java/io/swagger/sample/resource/PetResource.java
+- Le projet est en évolution active (certaines routes peuvent être affinées au fur et à mesure du front).
+- Pour une clé JWT persistante entre redémarrages, définir `JWT_SECRET`.
