@@ -12,6 +12,7 @@ import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.response.OrganizerDashboardStatsDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.OrganizerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -48,6 +49,7 @@ public class ConcertResource {
     private final ConcertDao concertDao = new ConcertDao();
     private final OrganizerDao organizerDao = new OrganizerDao();
     private final CurrentUserService currentUserService = new CurrentUserService();
+    private final OrganizerStatsService organizerStatsService = new OrganizerStatsService();
 
     @GET
     @Path("/")
@@ -226,36 +228,7 @@ public class ConcertResource {
 
         List<Concert> concerts = organizerDao.findConcertsByOrganizerId(organizer.getId());
         LocalDateTime now = LocalDateTime.now();
-
-        long totalConcerts = concerts.size();
-        long upcomingConcerts = concerts.stream()
-                .filter(c -> c.getDate() != null && c.getDate().isAfter(now))
-                .count();
-
-        long soldOutConcerts = concerts.stream()
-                .filter(c -> !c.getTickets().isEmpty())
-                .filter(c -> c.getTickets().stream().allMatch(t -> t.getCapacity() <= 0 || "soldout".equalsIgnoreCase(t.getStatut())))
-                .count();
-
-        long ticketsSold = concerts.stream()
-                .flatMap(c -> c.getTickets().stream())
-                .mapToLong(t -> t.getCustomers().size())
-                .sum();
-
-        long uniqueCustomers = concerts.stream()
-                .flatMap(c -> c.getTickets().stream())
-                .flatMap(t -> t.getCustomers().stream())
-                .map(Customer::getId)
-                .distinct()
-                .count();
-
-        OrganizerDashboardStatsDto stats = new OrganizerDashboardStatsDto(
-                totalConcerts,
-                upcomingConcerts,
-                soldOutConcerts,
-                ticketsSold,
-                uniqueCustomers
-        );
+        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(concerts, now);
 
         return Response.ok(stats).build();
     }

@@ -10,6 +10,7 @@ public class ConcertResponseDto {
     private LocalDateTime date;
     private String description;
     private Long organizerId;
+    private Double minPrice;
     private List<Long> ticketIds = new ArrayList<>();
     private List<Long> artistIds = new ArrayList<>();
 
@@ -17,12 +18,13 @@ public class ConcertResponseDto {
     }
 
     public ConcertResponseDto(Long id, String topic, LocalDateTime date, String description,
-                              Long organizerId, List<Long> ticketIds, List<Long> artistIds) {
+                              Long organizerId, Double minPrice, List<Long> ticketIds, List<Long> artistIds) {
         this.id = id;
         this.topic = topic;
         this.date = date;
         this.description = description;
         this.organizerId = organizerId;
+        this.minPrice = minPrice;
         if (ticketIds != null) {
             this.ticketIds = ticketIds;
         }
@@ -69,6 +71,14 @@ public class ConcertResponseDto {
 
     public void setOrganizerId(Long organizerId) {
         this.organizerId = organizerId;
+    }
+
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
     }
 
     public List<Long> getTicketIds() {

@@ -20,6 +20,7 @@ public class TicketService {
         Ticket ticket=new Ticket();
         ticket.setTitle(createTicketDto.getTitle());
         ticket.setCapacity(createTicketDto.getCapacity());
+        ticket.setPrice(createTicketDto.getPrice());
         ticket.setStatut(createTicketDto.getStatut());
         ticket.setConcert(concert);
         ticketDao.save(ticket);
@@ -46,6 +47,9 @@ public class TicketService {
         }
         if (updateTicketDto.getCapacity() != null) {
             ticket.setCapacity(updateTicketDto.getCapacity());
+        }
+        if (updateTicketDto.getPrice() != null) {
+            ticket.setPrice(updateTicketDto.getPrice());
         }
         if (updateTicketDto.getStatut() != null) {
             ticket.setStatut(updateTicketDto.getStatut());

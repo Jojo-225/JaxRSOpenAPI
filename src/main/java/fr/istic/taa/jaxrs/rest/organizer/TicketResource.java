@@ -8,9 +8,11 @@ import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
+import fr.istic.taa.jaxrs.dto.response.OrganizerDashboardStatsDto;
 import fr.istic.taa.jaxrs.dto.ticket.CreateTicketDto;
 import fr.istic.taa.jaxrs.dto.ticket.UpdateTicketDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.OrganizerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,6 +32,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,7 @@ public class TicketResource {
     private final ConcertDao concertDao = new ConcertDao();
     private final OrganizerDao organizerDao = new OrganizerDao();
     private final CurrentUserService currentUserService = new CurrentUserService();
+    private final OrganizerStatsService organizerStatsService = new OrganizerStatsService();
 
     @GET
     @Path("/")
@@ -107,6 +111,26 @@ public class TicketResource {
                 .collect(Collectors.toList())).build();
     }
 
+    @GET
+    @Path("/stats/sales")
+    @Operation(summary = "Get sales stats", description = "Returns ticket sales statistics for the authenticated organizer", responses = {
+            @ApiResponse(responseCode = "200", description = "Sales stats returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public Response getSalesStats(@Context SecurityContext securityContext) {
+        Organizer organizer = getAuthenticatedOrganizer(securityContext);
+        if (organizer == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(
+                organizerDao.findConcertsByOrganizerId(organizer.getId()),
+                LocalDateTime.now()
+        );
+
+        return Response.ok(stats).build();
+    }
+
     @POST
     @Path("/concert/{concertId}")
     @Operation(summary = "Create ticket for concert", description = "Creates a ticket in one organizer concert", responses = {
@@ -129,10 +153,14 @@ public class TicketResource {
         if (dto == null || dto.getTitle() == null || dto.getStatut() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("title/statut required").build();
         }
+        if (dto.getPrice() < 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("price must be >= 0").build();
+        }
 
         Ticket ticket = new Ticket();
         ticket.setTitle(dto.getTitle());
         ticket.setCapacity(dto.getCapacity());
+        ticket.setPrice(dto.getPrice());
         ticket.setStatut(dto.getStatut());
         ticket.setConcert(concert);
         ticketDao.save(ticket);
@@ -162,6 +190,10 @@ public class TicketResource {
     })
     public Response updateTicket(@PathParam("id") Long id, UpdateTicketDto dto,
                                  @Context SecurityContext securityContext) {
+        if (dto == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("payload is required").build();
+        }
+
         Organizer organizer = getAuthenticatedOrganizer(securityContext);
         if (organizer == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -175,8 +207,11 @@ public class TicketResource {
         if (dto.getTitle() != null) {
             ticket.setTitle(dto.getTitle());
         }
-        if (dto.getCapacity() >= 0) {
+        if (dto.getCapacity() != null && dto.getCapacity() >= 0) {
             ticket.setCapacity(dto.getCapacity());
+        }
+        if (dto.getPrice() != null && dto.getPrice() >= 0) {
+            ticket.setPrice(dto.getPrice());
         }
         if (dto.getStatut() != null) {
             ticket.setStatut(dto.getStatut());

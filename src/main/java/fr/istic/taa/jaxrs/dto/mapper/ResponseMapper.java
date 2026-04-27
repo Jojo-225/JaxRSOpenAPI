@@ -42,6 +42,9 @@ public final class ResponseMapper {
         List<Long> ticketIds = concert.getTickets() == null
                 ? Collections.emptyList()
                 : concert.getTickets().stream().map(Ticket::getId).collect(Collectors.toList());
+        Double minPrice = concert.getTickets() == null || concert.getTickets().isEmpty()
+                ? null
+                : concert.getTickets().stream().mapToDouble(Ticket::getPrice).min().orElse(0.0d);
         List<Long> artistIds = concert.getArtists() == null
                 ? Collections.emptyList()
                 : concert.getArtists().stream().map(Artist::getId).collect(Collectors.toList());
@@ -52,6 +55,7 @@ public final class ResponseMapper {
                 concert.getDate(),
                 concert.getDescription(),
                 organizerId,
+                minPrice,
                 ticketIds,
                 artistIds
         );
@@ -71,6 +75,7 @@ public final class ResponseMapper {
                 ticket.getId(),
                 ticket.getTitle(),
                 ticket.getCapacity(),
+                ticket.getPrice(),
                 ticket.getStatut(),
                 concertId,
                 customerIds

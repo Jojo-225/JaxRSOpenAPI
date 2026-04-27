@@ -32,6 +32,8 @@ public class DataInitializer {
     }
 
     public static void initializeIfEmpty() {
+        ensureTicketPriceColumnExists();
+
         if (alreadyInitializedThisJvm.get()) {
             return;
         }
@@ -42,6 +44,28 @@ public class DataInitializer {
         }
         initialize();
         alreadyInitializedThisJvm.set(true);
+    }
+
+    private static void ensureTicketPriceColumnExists() {
+        EntityManager manager = EntityManagerHelper.getEntityManager();
+        EntityTransaction tx = manager.getTransaction();
+
+        try {
+            if (!tx.isActive()) {
+                tx.begin();
+            }
+
+            manager.createNativeQuery("ALTER TABLE Ticket ADD COLUMN PRICE DOUBLE DEFAULT 0").executeUpdate();
+
+            tx.commit();
+            logger.info("Database schema update: PRICE column added to Ticket table.");
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            // Expected when column already exists; keep startup resilient.
+            logger.info("Database schema check: Ticket.PRICE already exists or cannot be added (" + e.getMessage() + ")");
+        }
     }
  
     private void _initialize() {
@@ -67,7 +91,7 @@ public class DataInitializer {
 				artist.addConcert(concert);
 				manager.persist(artist);
 
-				Ticket ticket = new Ticket("Ticket standard", 100, "available", concert);
+				Ticket ticket = new Ticket("Ticket standard", 100, 49.99, "available", concert);
 				manager.persist(ticket);
 			}
 			
