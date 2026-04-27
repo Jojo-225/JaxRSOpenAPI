@@ -2,8 +2,10 @@ package fr.istic.taa.jaxrs.rest;
 
 import fr.istic.taa.jaxrs.dao.CustomerDao;
 import fr.istic.taa.jaxrs.dao.TicketDao;
+import fr.istic.taa.jaxrs.dao.TicketSaleDao;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.domain.Ticket;
+import fr.istic.taa.jaxrs.domain.TicketSale;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.ticket.BuyTicketDto;
@@ -24,6 +26,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.Map;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Path("/api/custom")
@@ -37,6 +40,7 @@ public class CustomerActionResource {
     private final CurrentUserService currentUserService = new CurrentUserService();
     private final CustomerDao customerDao = new CustomerDao();
     private final TicketDao ticketDao = new TicketDao();
+    private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
 
     @GET
     @Path("/profile")
@@ -128,6 +132,14 @@ public class CustomerActionResource {
         }
 
         Ticket updatedTicket = ticketDao.update(ticket);
+        TicketSale sale = new TicketSale(
+                updatedTicket,
+                customer,
+                updatedTicket.getConcert(),
+                LocalDateTime.now(),
+                updatedTicket.getPrice()
+        );
+        ticketSaleDao.save(sale);
         return Response.ok(ResponseMapper.toTicketDto(updatedTicket)).build();
     }
 }

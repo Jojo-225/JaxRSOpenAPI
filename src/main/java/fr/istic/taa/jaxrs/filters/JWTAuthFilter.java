@@ -12,12 +12,14 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Map;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
@@ -27,6 +29,13 @@ public class JWTAuthFilter implements ContainerRequestFilter {
     private ResourceInfo resourceInfo;
 
     private static final String BEARER_PREFIX = "Bearer ";
+
+    private Response jsonError(Response.Status status, String message) {
+        return Response.status(status)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(Map.of("error", message))
+                .build();
+    }
 
     private boolean isPermitAll() {
         return resourceInfo.getResourceMethod().isAnnotationPresent(PermitAll.class)
@@ -54,7 +63,7 @@ public class JWTAuthFilter implements ContainerRequestFilter {
         }
 
         if (isDenyAll()) {
-            requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+            requestContext.abortWith(jsonError(Response.Status.FORBIDDEN, "access denied"));
             return;
         }
 
@@ -67,7 +76,7 @@ public class JWTAuthFilter implements ContainerRequestFilter {
         String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            requestContext.abortWith(jsonError(Response.Status.UNAUTHORIZED, "missing or invalid Authorization header"));
             return;
         }
 
@@ -80,7 +89,7 @@ public class JWTAuthFilter implements ContainerRequestFilter {
                     .anyMatch(payload.roles()::contains);
 
             if (!hasRole) {
-                requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
+                requestContext.abortWith(jsonError(Response.Status.FORBIDDEN, "insufficient role"));
                 return;
             }
 
@@ -108,7 +117,7 @@ public class JWTAuthFilter implements ContainerRequestFilter {
             });
 
         } catch (JwtException e) {
-            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            requestContext.abortWith(jsonError(Response.Status.UNAUTHORIZED, "invalid or expired token"));
         }
     }
 }
