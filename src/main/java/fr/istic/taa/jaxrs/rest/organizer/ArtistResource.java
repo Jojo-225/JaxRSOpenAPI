@@ -141,6 +141,8 @@ public class ArtistResource {
         artist.setName(dto.getName());
         artist.addConcert(concert);
         artistDao.save(artist);
+        concert.addArtist(artist);
+        concertDao.update(concert);
 
         return Response.created(URI.create("/organise/artists/" + artist.getId()))
                 .entity(ResponseMapper.toArtistDto(artist))
