@@ -1,4 +1,7 @@
 package fr.istic.taa.jaxrs.dao;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import fr.istic.taa.jaxrs.dao.generic.AbstractJpaDao;
@@ -25,7 +28,7 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
 
     // Critère pour trouver les concerts en fonction du topic, de la date, de la description,  du nom d'un artiste,  et ou d'un organisateur
     public List<Concert> findConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
-        StringBuilder queryBuilder = new StringBuilder("SELECT c FROM Concert c WHERE 1=1");
+    StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT c FROM Concert c LEFT JOIN c.artists a  LEFT JOIN c.organizer o WHERE 1=1");
         
         if (topic != null && !topic.isEmpty()) {
             queryBuilder.append(" AND c.topic LIKE :topic");
@@ -37,10 +40,10 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
             queryBuilder.append(" AND c.description LIKE :description");
         }
         if (artistName != null && !artistName.isEmpty()) {
-            queryBuilder.append(" AND EXISTS (SELECT a FROM c.artists a WHERE a.name LIKE :artistName)");
+            queryBuilder.append("  AND a.name LIKE :artistName");
         }
         if (organizerName != null && !organizerName.isEmpty()) {
-            queryBuilder.append(" AND EXISTS (SELECT o FROM c.organizers o WHERE o.name LIKE :organizerName)");
+            queryBuilder.append("  AND (o.lastName LIKE :organizerName OR o.firstName LIKE :organizerName)");
         }
 
         TypedQuery<Concert> query = this.entityManager.createQuery(queryBuilder.toString(), Concert.class);
@@ -49,7 +52,12 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
             query.setParameter("topic", "%" + topic + "%");
         }
         if (date != null && !date.isEmpty()) {
-            query.setParameter("date", date);
+           try {
+                LocalDateTime parsedDate = LocalDateTime.parse(date);
+                query.setParameter("date", parsedDate);
+            } catch (DateTimeParseException e) {
+                return List.of();
+            }
         }
         if (description != null && !description.isEmpty()) {
             query.setParameter("description", "%" + description + "%");

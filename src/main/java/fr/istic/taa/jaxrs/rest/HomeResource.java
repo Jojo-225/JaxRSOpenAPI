@@ -9,6 +9,8 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+
 import java.util.stream.Collectors;
 import jakarta.ws.rs.PathParam;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class HomeResource {
     @Operation(summary = "Search concerts", description = "Returns a list of concerts matching the given criteria", responses = {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of concerts")
     })
-    public Response getConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
+    public Response getConcertsByCriteria(@QueryParam("topic") String topic, @QueryParam("date") String date, @QueryParam("description") String description, @QueryParam("artistName") String artistName, @QueryParam("organizerName") String organizerName) {
         return withCors(Response.ok(concertService.findConcertsByCriteria(topic, date, description, artistName, organizerName).stream()
             .map(ResponseMapper::toConcertDto)
             .collect(Collectors.toList()))).build();
