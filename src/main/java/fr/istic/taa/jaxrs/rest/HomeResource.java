@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.rest;
 import fr.istic.taa.jaxrs.domain.Concert;
+import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.service.ConcertService;
 import fr.istic.taa.jaxrs.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,6 +72,20 @@ public class HomeResource {
             return withCors(Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Concert not found"))).build();
         }
         return withCors(Response.ok(ResponseMapper.toConcertDto(concert))).build();
+    }
+
+    @GET
+    @Path("/tickets/{id}")
+    @Operation(summary = "Get ticket by ID", description = "Returns a specific ticket by its ID", responses = {
+        @ApiResponse(responseCode = "200", description = "Successful retrieval of ticket"),
+        @ApiResponse(responseCode = "404", description = "Ticket not found")
+    })
+    public Response getTicketById(@PathParam("id") Long id) {
+        Ticket ticket = ticketService.findOne(id);
+        if (ticket == null) {
+            return withCors(Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Ticket not found"))).build();
+        }
+        return withCors(Response.ok(ResponseMapper.toTicketDto(ticket))).build();
     }
 
     @GET    

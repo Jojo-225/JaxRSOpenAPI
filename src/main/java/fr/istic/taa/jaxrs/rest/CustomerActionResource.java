@@ -19,6 +19,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -78,6 +79,26 @@ public class CustomerActionResource {
         return Response.ok(customerDao.findTicketsByCustomerId(customer.getId()).stream()
                 .map(ResponseMapper::toTicketDto)
                 .collect(Collectors.toList())).build();
+    }
+
+    @GET
+    @Path("/tickets/{id}")
+    @Operation(summary = "Get ticket detail", description = "Returns ticket detail by id for authenticated customer/organizer", responses = {
+            @ApiResponse(responseCode = "200", description = "Ticket returned"),
+            @ApiResponse(responseCode = "404", description = "Ticket not found")
+    })
+    public Response getTicketDetail(@PathParam("id") Long id, @Context SecurityContext securityContext) {
+        User currentUser = currentUserService.getCurrentUser(securityContext);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(Map.of("error", "unauthorized")).build();
+        }
+
+        Ticket ticket = ticketDao.findOne(id);
+        if (ticket == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "ticket not found")).build();
+        }
+
+        return Response.ok(ResponseMapper.toTicketDto(ticket)).build();
     }
 
     @POST
