@@ -11,6 +11,10 @@ import fr.istic.taa.jaxrs.dto.response.ArtistResponseDto;
 import fr.istic.taa.jaxrs.dto.response.ConcertResponseDto;
 import fr.istic.taa.jaxrs.dto.response.TicketResponseDto;
 import fr.istic.taa.jaxrs.dto.response.UserResponseDto;
+import fr.istic.taa.jaxrs.domain.TicketSale;
+import fr.istic.taa.jaxrs.domain.Ticket;
+import fr.istic.taa.jaxrs.domain.Concert;
+import fr.istic.taa.jaxrs.dto.ticket.CustomerTicketPurchaseResponseDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -109,4 +113,40 @@ public final class ResponseMapper {
         }
         return "USER";
     }
+
+    public static CustomerTicketPurchaseResponseDto toTicketPurchaseDto(TicketSale sale) {
+    CustomerTicketPurchaseResponseDto dto = new CustomerTicketPurchaseResponseDto();
+
+    dto.setPurchaseId(sale.getId());
+    dto.setReference(sale.getReference());
+    dto.setPurchaseDate(sale.getPurchaseDate() != null ? sale.getPurchaseDate().toString() : null);
+
+    dto.setQuantity(sale.getQuantity());
+    dto.setUnitPrice(sale.getPriceAtPurchase());
+    dto.setTotalPrice(sale.getTotalPrice());
+    dto.setStatus(sale.getStatus());
+
+    Ticket ticket = sale.getTicket();
+
+    if (ticket != null) {
+        dto.setTicketId(ticket.getId());
+        dto.setTicketTitle(ticket.getTitle());
+
+        Concert concert = ticket.getConcert();
+
+        if (concert != null) {
+            dto.setConcertId(concert.getId());
+            dto.setConcertTopic(concert.getTopic());
+            dto.setConcertDate(concert.getDate() != null ? concert.getDate().toString() : null);
+        }
+    }
+
+    if (sale.getConcert() != null && dto.getConcertId() == null) {
+        dto.setConcertId(sale.getConcert().getId());
+        dto.setConcertTopic(sale.getConcert().getTopic());
+        dto.setConcertDate(sale.getConcert().getDate() != null ? sale.getConcert().getDate().toString() : null);
+    }
+
+    return dto;
+}
 }

@@ -9,6 +9,7 @@ import fr.istic.taa.jaxrs.domain.TicketSale;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.ticket.BuyTicketDto;
+import fr.istic.taa.jaxrs.dto.ticket.CustomerTicketPurchaseResponseDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -101,67 +102,113 @@ public class CustomerActionResource {
         return Response.ok(ResponseMapper.toTicketDto(ticket)).build();
     }
 
-    @POST
+   @POST
     @Path("/buyticket")
-    @Operation(summary = "Buy ticket", description = "Buys a ticket for the authenticated customer", responses = {
-            @ApiResponse(responseCode = "200", description = "Ticket bought successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Only customers can buy tickets"),
-            @ApiResponse(responseCode = "404", description = "Ticket not found"),
-            @ApiResponse(responseCode = "409", description = "Ticket unavailable or already bought")
+    @Operation(summary = "Buy ticket", description = "Buys one or more tickets for the authenticated customer", responses = {
+        @ApiResponse(responseCode = "200", description = "Ticket bought successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Only customers can buy tickets"),
+        @ApiResponse(responseCode = "404", description = "Ticket not found"),
+        @ApiResponse(responseCode = "409", description = "Ticket unavailable")
     })
     public Response buyTicket(BuyTicketDto dto, @Context SecurityContext securityContext) {
-        if (dto == null || dto.getTicketId() == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", "ticketId is required")).build();
-        }
+    if (dto == null || dto.getTicketId() == null) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(Map.of("error", "ticketId is required"))
+                .build();
+    }
 
-        User currentUser = currentUserService.getCurrentUser(securityContext);
-        if (currentUser == null) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(Map.of("error", "unauthorized")).build();
-        }
-        if (!(currentUser instanceof Customer)) {
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity(Map.of("error", "This action is available only for customer accounts"))
+    int quantity = dto.getQuantity() == null ? 1 : dto.getQuantity();
+
+    if (quantity <= 0) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(Map.of("error", "quantity must be greater than 0"))
+                .build();
+    }
+
+    User currentUser = currentUserService.getCurrentUser(securityContext);
+
+    if (currentUser == null) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(Map.of("error", "unauthorized"))
+                .build();
+    }
+
+    if (!(currentUser instanceof Customer)) {
+        return Response.status(Response.Status.FORBIDDEN)
+                .entity(Map.of("error", "This action is available only for customer accounts"))
+                .build();
+    }
+
+    Customer customer = (Customer) currentUser;
+
+    try {
+        TicketSale sale = ticketSaleDao.buyTicket(customer.getId(), dto.getTicketId(), quantity);
+
+        CustomerTicketPurchaseResponseDto responseDto = ResponseMapper.toTicketPurchaseDto(sale);
+
+        return Response.ok(responseDto).build();
+
+    } catch (IllegalArgumentException e) {
+        if ("TICKET_NOT_FOUND".equals(e.getMessage())) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "ticket not found"))
                     .build();
         }
 
-        Ticket ticket = ticketDao.findOne(dto.getTicketId());
-        if (ticket == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "ticket not found")).build();
+        if ("INVALID_QUANTITY".equals(e.getMessage())) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "quantity must be greater than 0"))
+                    .build();
         }
 
-        if (!"available".equalsIgnoreCase(ticket.getStatut()) || ticket.getCapacity() <= 0) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity(Map.of("error", "invalid request"))
+                .build();
+
+    } catch (IllegalStateException e) {
+        if ("TICKET_UNAVAILABLE".equals(e.getMessage())) {
             return Response.status(Response.Status.CONFLICT)
-                    .entity(Map.of("error", "ticket is no longer available"))
+                    .entity(Map.of("error", "ticket is no longer available or requested quantity is too high"))
                     .build();
         }
 
-        Customer customer = (Customer) currentUser;
-        boolean alreadyBought = ticket.getCustomers().stream().anyMatch(c -> c.getId().equals(customer.getId()));
-        if (alreadyBought) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity(Map.of("error", "ticket already bought by this customer"))
-                    .build();
-        }
-
-        ticket.addCustomer(customer);
-        customer.addTicketAchete(ticket);
-        ticket.setCapacity(ticket.getCapacity() - 1);
-        if (ticket.getCapacity() <= 0) {
-            ticket.setStatut("soldout");
-        }
-
-        Ticket updatedTicket = ticketDao.update(ticket);
-        TicketSale sale = new TicketSale(
-                updatedTicket,
-                customer,
-                updatedTicket.getConcert(),
-                LocalDateTime.now(),
-                updatedTicket.getPrice()
-        );
-        ticketSaleDao.save(sale);
-        return Response.ok(ResponseMapper.toTicketDto(updatedTicket)).build();
+        return Response.status(Response.Status.CONFLICT)
+                .entity(Map.of("error", "ticket unavailable"))
+                .build();
     }
 }
 
+@GET
+@Path("/my-purchases")
+@Operation(summary = "Get my purchases", description = "Returns ticket purchases made by the authenticated customer", responses = {
+        @ApiResponse(responseCode = "200", description = "Purchases returned"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Only customers can access this action")
+})
+public Response myPurchases(@Context SecurityContext securityContext) {
+    User currentUser = currentUserService.getCurrentUser(securityContext);
+
+    if (currentUser == null) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(Map.of("error", "unauthorized"))
+                .build();
+    }
+
+    if (!(currentUser instanceof Customer)) {
+        return Response.status(Response.Status.FORBIDDEN)
+                .entity(Map.of("error", "This action is available only for customer accounts"))
+                .build();
+    }
+
+    Customer customer = (Customer) currentUser;
+
+    return Response.ok(
+            ticketSaleDao.findByCustomerId(customer.getId())
+                    .stream()
+                    .map(ResponseMapper::toTicketPurchaseDto)
+                    .collect(Collectors.toList())
+    ).build();
+}
+}
