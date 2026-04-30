@@ -27,48 +27,83 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
     }
 
     // Critère pour trouver les concerts en fonction du topic, de la date, de la description,  du nom d'un artiste,  et ou d'un organisateur
-    public List<Concert> findConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
-    StringBuilder queryBuilder = new StringBuilder("SELECT DISTINCT c FROM Concert c LEFT JOIN c.artists a  LEFT JOIN c.organizer o WHERE 1=1");
-        
-        if (topic != null && !topic.isEmpty()) {
-            queryBuilder.append(" AND c.topic LIKE :topic");
-        }
-        if (date != null && !date.isEmpty()) {
-            queryBuilder.append(" AND c.date = :date");
-        }
-        if (description != null && !description.isEmpty()) {
-            queryBuilder.append(" AND c.description LIKE :description");
-        }
-        if (artistName != null && !artistName.isEmpty()) {
-            queryBuilder.append("  AND a.name LIKE :artistName");
-        }
-        if (organizerName != null && !organizerName.isEmpty()) {
-            queryBuilder.append("  AND (o.lastName LIKE :organizerName OR o.firstName LIKE :organizerName)");
-        }
+ public List<Concert> findConcertsByCriteria(String topic,String date,String description,String artistName,String organizerName, Double priceMin,Double priceMax) {
+    StringBuilder queryBuilder = new StringBuilder(
+            "SELECT DISTINCT c FROM Concert c " +
+            "LEFT JOIN c.artists a " +
+            "LEFT JOIN c.organizer o " +
+            "LEFT JOIN c.tickets t " +
+            "WHERE 1=1"
+    );
 
-        TypedQuery<Concert> query = this.entityManager.createQuery(queryBuilder.toString(), Concert.class);
-        
-        if (topic != null && !topic.isEmpty()) {
-            query.setParameter("topic", "%" + topic + "%");
-        }
-        if (date != null && !date.isEmpty()) {
-           try {
-                LocalDateTime parsedDate = LocalDateTime.parse(date);
-                query.setParameter("date", parsedDate);
-            } catch (DateTimeParseException e) {
-                return List.of();
-            }
-        }
-        if (description != null && !description.isEmpty()) {
-            query.setParameter("description", "%" + description + "%");
-        }
-        if (artistName != null && !artistName.isEmpty()) {
-            query.setParameter("artistName", "%" + artistName + "%");
-        }
-        if (organizerName != null && !organizerName.isEmpty()) {
-            query.setParameter("organizerName", "%" + organizerName + "%");
-        }
-
-        return query.getResultList();
+    if (topic != null && !topic.trim().isEmpty()) {
+        queryBuilder.append(" AND LOWER(c.topic) LIKE :topic");
     }
+
+    if (date != null && !date.trim().isEmpty()) {
+        queryBuilder.append(" AND c.date >= :startDate AND c.date < :endDate");
+    }
+
+    if (description != null && !description.trim().isEmpty()) {
+        queryBuilder.append(" AND LOWER(c.description) LIKE :description");
+    }
+    if (priceMin != null) {
+        queryBuilder.append(" AND t.price >= :priceMin");
+    }
+
+    if (priceMax != null) {
+        queryBuilder.append(" AND t.price <= :priceMax");
+    }
+
+    if (artistName != null && !artistName.trim().isEmpty()) {
+        queryBuilder.append(" AND LOWER(a.name) LIKE :artistName");
+    }
+
+    if (organizerName != null && !organizerName.trim().isEmpty()) {
+        queryBuilder.append(" AND (LOWER(o.lastName) LIKE :organizerName OR LOWER(o.firstName) LIKE :organizerName)");
+    }
+
+    queryBuilder.append(" ORDER BY c.date ASC");
+
+    TypedQuery<Concert> query = this.entityManager.createQuery(queryBuilder.toString(), Concert.class);
+
+    if (topic != null && !topic.trim().isEmpty()) {
+        query.setParameter("topic", "%" + topic.trim().toLowerCase() + "%");
+    }
+
+    if (date != null && !date.trim().isEmpty()) {
+        try {
+            LocalDate parsedDate = LocalDate.parse(date.trim());
+
+            LocalDateTime startDate = parsedDate.atStartOfDay();
+            LocalDateTime endDate = parsedDate.plusDays(1).atStartOfDay();
+
+            query.setParameter("startDate", startDate);
+            query.setParameter("endDate", endDate);
+        } catch (DateTimeParseException e) {
+            return List.of();
+        }
+    }
+
+    if (description != null && !description.trim().isEmpty()) {
+        query.setParameter("description", "%" + description.trim().toLowerCase() + "%");
+    }
+    if (priceMin != null) {
+        query.setParameter("priceMin", priceMin);
+    }
+
+    if (priceMax != null) {
+        query.setParameter("priceMax", priceMax);
+    }
+
+    if (artistName != null && !artistName.trim().isEmpty()) {
+        query.setParameter("artistName", "%" + artistName.trim().toLowerCase() + "%");
+    }
+
+    if (organizerName != null && !organizerName.trim().isEmpty()) {
+        query.setParameter("organizerName", "%" + organizerName.trim().toLowerCase() + "%");
+    }
+
+    return query.getResultList();
+}
 }

@@ -54,8 +54,8 @@ public class HomeResource {
     @Operation(summary = "Search concerts", description = "Returns a list of concerts matching the given criteria", responses = {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of concerts")
     })
-    public Response getConcertsByCriteria(@QueryParam("topic") String topic, @QueryParam("date") String date, @QueryParam("description") String description, @QueryParam("artistName") String artistName, @QueryParam("organizerName") String organizerName) {
-        return withCors(Response.ok(concertService.findConcertsByCriteria(topic, date, description, artistName, organizerName).stream()
+    public Response getConcertsByCriteria(@QueryParam("topic") String topic, @QueryParam("date") String date, @QueryParam("description") String description, @QueryParam("artistName") String artistName, @QueryParam("organizerName") String organizerName, @QueryParam("priceMin") Double priceMin, @QueryParam("priceMax") Double priceMax) {
+        return withCors(Response.ok(concertService.findConcertsByCriteria(topic, date, description, artistName, organizerName, priceMin, priceMax).stream()
             .map(ResponseMapper::toConcertDto)
             .collect(Collectors.toList()))).build();
     }
