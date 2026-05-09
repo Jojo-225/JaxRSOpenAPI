@@ -26,6 +26,7 @@ import fr.istic.taa.jaxrs.filters.CorsFilter;
 import fr.istic.taa.jaxrs.rest.AuthResource;
 import fr.istic.taa.jaxrs.rest.CustomerActionResource;
 import fr.istic.taa.jaxrs.rest.HomeResource;
+import fr.istic.taa.jaxrs.rest.NotificationResource;
 import fr.istic.taa.jaxrs.rest.SwaggerResource;
 import fr.istic.taa.jaxrs.rest.organizer.ArtistResource;
 import fr.istic.taa.jaxrs.rest.organizer.ConcertResource;
@@ -95,6 +96,7 @@ public class TestApplication extends Application {
         clazzes.add(OrganizerResource.class);
         clazzes.add(HomeResource.class);
         clazzes.add(CustomerActionResource.class);
+        clazzes.add(NotificationResource.class);
         clazzes.add(ConcertResource.class);
         clazzes.add(DashboardResource.class);
         clazzes.add(ArtistResource.class);
@@ -111,4 +113,3 @@ public class TestApplication extends Application {
     }
 
 }
-

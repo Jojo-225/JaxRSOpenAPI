@@ -236,7 +236,11 @@ public class ConcertResource {
 
         List<Concert> concerts = organizerDao.findConcertsByOrganizerId(organizer.getId());
         LocalDateTime now = LocalDateTime.now();
-        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(concerts, now);
+        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(
+                concerts,
+                ticketSaleDao.findByOrganizerId(organizer.getId()),
+                now
+        );
 
         return Response.ok(stats).build();
     }
@@ -309,8 +313,9 @@ public class ConcertResource {
 
     private OrganizerTicketSalesResponseDto buildSalesResponseForOrganizer(Long organizerId) {
         List<Concert> concerts = organizerDao.findConcertsByOrganizerId(organizerId);
+        List<TicketSale> sales = ticketSaleDao.findByOrganizerId(organizerId);
         List<ConcertTicketSalesSummaryDto> concertSales = concerts.stream()
-                .map(this::toConcertSales)
+                .map(concert -> toConcertSales(concert, sales))
                 .collect(Collectors.toList());
 
         long totalTicketsSold = concertSales.stream().mapToLong(ConcertTicketSalesSummaryDto::getTicketsSold).sum();
@@ -342,19 +347,24 @@ public class ConcertResource {
                 && concert.getOrganizer().getId().equals(organizerId);
     }
 
-    private ConcertTicketSalesSummaryDto toConcertSales(Concert concert) {
-        long ticketsSold = concert.getTickets().stream()
-                .mapToLong(t -> t.getCustomers().size())
+    private ConcertTicketSalesSummaryDto toConcertSales(Concert concert, List<TicketSale> sales) {
+        List<TicketSale> concertSales = sales.stream()
+                .filter(s -> s.getConcert() != null && concert.getId().equals(s.getConcert().getId()))
+                .collect(Collectors.toList());
+
+        long ticketsSold = concertSales.stream()
+                .mapToLong(this::saleQuantity)
                 .sum();
 
-        long uniqueCustomers = concert.getTickets().stream()
-                .flatMap(t -> t.getCustomers().stream())
+        long uniqueCustomers = concertSales.stream()
+                .map(TicketSale::getCustomer)
+                .filter(customer -> customer != null && customer.getId() != null)
                 .map(Customer::getId)
                 .distinct()
                 .count();
 
-        double revenue = round2(concert.getTickets().stream()
-                .mapToDouble(t -> t.getPrice() * t.getCustomers().size())
+        double revenue = round2(concertSales.stream()
+                .mapToDouble(this::saleTotal)
                 .sum());
 
         return new ConcertTicketSalesSummaryDto(
@@ -369,6 +379,17 @@ public class ConcertResource {
 
     private double round2(double value) {
         return Math.round(value * 100.0d) / 100.0d;
+    }
+
+    private double saleTotal(TicketSale sale) {
+        if (sale.getTotalPrice() > 0) {
+            return sale.getTotalPrice();
+        }
+        return sale.getPriceAtPurchase() * saleQuantity(sale);
+    }
+
+    private int saleQuantity(TicketSale sale) {
+        return sale.getQuantity() > 0 ? sale.getQuantity() : 1;
     }
 
     private TicketSaleHistoryItemDto toSaleHistoryItem(TicketSale sale) {
@@ -386,7 +407,11 @@ public class ConcertResource {
                 sale.getConcert() != null ? sale.getConcert().getId() : null,
                 sale.getConcert() != null ? sale.getConcert().getTopic() : null,
                 sale.getTicket() != null ? sale.getTicket().getId() : null,
-                sale.getTicket() != null ? sale.getTicket().getTitle() : null
+                sale.getTicket() != null ? sale.getTicket().getTitle() : null,
+                saleQuantity(sale),
+                saleTotal(sale),
+                sale.getReference(),
+                sale.getStatus()
         );
     }
 

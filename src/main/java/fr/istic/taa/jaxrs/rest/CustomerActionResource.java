@@ -11,6 +11,7 @@ import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
 import fr.istic.taa.jaxrs.dto.ticket.BuyTicketDto;
 import fr.istic.taa.jaxrs.dto.ticket.CustomerTicketPurchaseResponseDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,6 +44,7 @@ public class CustomerActionResource {
     private final CustomerDao customerDao = new CustomerDao();
     private final TicketDao ticketDao = new TicketDao();
     private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
+    private final NotificationService notificationService = new NotificationService();
 
     @GET
     @Path("/profile")
@@ -145,6 +147,7 @@ public class CustomerActionResource {
 
     try {
         TicketSale sale = ticketSaleDao.buyTicket(customer.getId(), dto.getTicketId(), quantity);
+        notificationService.createTicketSaleNotification(sale);
 
         CustomerTicketPurchaseResponseDto responseDto = ResponseMapper.toTicketPurchaseDto(sale);
 

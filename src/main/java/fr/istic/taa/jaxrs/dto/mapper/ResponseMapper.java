@@ -5,8 +5,10 @@ import fr.istic.taa.jaxrs.domain.Artist;
 import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.domain.Organizer;
+import fr.istic.taa.jaxrs.domain.Notification;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.User;
+import fr.istic.taa.jaxrs.dto.notification.NotificationDto;
 import fr.istic.taa.jaxrs.dto.response.ArtistResponseDto;
 import fr.istic.taa.jaxrs.dto.response.ConcertResponseDto;
 import fr.istic.taa.jaxrs.dto.response.TicketResponseDto;
@@ -73,7 +75,10 @@ public final class ResponseMapper {
         Long concertId = ticket.getConcert() != null ? ticket.getConcert().getId() : null;
         List<Long> customerIds = ticket.getCustomers() == null
                 ? Collections.emptyList()
-                : ticket.getCustomers().stream().map(Customer::getId).collect(Collectors.toList());
+                : ticket.getCustomers().stream()
+                        .map(Customer::getId)
+                        .distinct()
+                        .collect(Collectors.toList());
 
         return new TicketResponseDto(
                 ticket.getId(),
@@ -98,6 +103,20 @@ public final class ResponseMapper {
                 user.getDateOfBirth(),
                 user.getMail(),
                 roleFromUser(user)
+        );
+    }
+
+    public static NotificationDto toNotificationDto(Notification notification) {
+        if (notification == null) {
+            return null;
+        }
+
+        return new NotificationDto(
+                notification.getId(),
+                notification.getUserId(),
+                notification.getMessage(),
+                notification.isRead(),
+                notification.getCreatedAt()
         );
     }
 

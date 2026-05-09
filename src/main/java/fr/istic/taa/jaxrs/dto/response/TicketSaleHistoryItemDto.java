@@ -16,6 +16,10 @@ public class TicketSaleHistoryItemDto {
 
     private Long ticketId;
     private String ticketTitle;
+    private int quantity;
+    private double totalPrice;
+    private String reference;
+    private String status;
 
     public TicketSaleHistoryItemDto() {
     }
@@ -24,6 +28,15 @@ public class TicketSaleHistoryItemDto {
                                     Long customerId, String customerName, String customerEmail,
                                     Long concertId, String concertTopic,
                                     Long ticketId, String ticketTitle) {
+        this(saleId, purchaseDate, price, customerId, customerName, customerEmail, concertId, concertTopic,
+                ticketId, ticketTitle, 1, price, null, null);
+    }
+
+    public TicketSaleHistoryItemDto(Long saleId, LocalDateTime purchaseDate, double price,
+                                    Long customerId, String customerName, String customerEmail,
+                                    Long concertId, String concertTopic,
+                                    Long ticketId, String ticketTitle,
+                                    int quantity, double totalPrice, String reference, String status) {
         this.saleId = saleId;
         this.purchaseDate = purchaseDate;
         this.price = price;
@@ -34,6 +47,10 @@ public class TicketSaleHistoryItemDto {
         this.concertTopic = concertTopic;
         this.ticketId = ticketId;
         this.ticketTitle = ticketTitle;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+        this.reference = reference;
+        this.status = status;
     }
 
     public Long getSaleId() {
@@ -115,5 +132,36 @@ public class TicketSaleHistoryItemDto {
     public void setTicketTitle(String ticketTitle) {
         this.ticketTitle = ticketTitle;
     }
-}
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}

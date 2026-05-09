@@ -104,6 +104,16 @@ public class TicketSaleDao extends AbstractJpaDao<Long, TicketSale> {
                 .getResultList();
     }
 
+    public List<TicketSale> findByOrganizerId(Long organizerId) {
+        return this.entityManager
+                .createQuery(
+                        "SELECT s FROM TicketSale s WHERE s.concert.organizer.id = :organizerId ORDER BY s.purchaseDate DESC",
+                        TicketSale.class
+                )
+                .setParameter("organizerId", organizerId)
+                .getResultList();
+    }
+
     public List<TicketSale> findLatestByOrganizerId(Long organizerId, int limit) {
         return this.entityManager
                 .createQuery(
