@@ -6,6 +6,7 @@ public class NotificationDto {
 
     private Long id;
     private Long userId;
+    private Long organizerId;
     private String message;
     private boolean read;
     private LocalDateTime createdAt;
@@ -16,6 +17,15 @@ public class NotificationDto {
     public NotificationDto(Long id, Long userId, String message, boolean read, LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
+        this.message = message;
+        this.read = read;
+        this.createdAt = createdAt;
+    }
+
+    public NotificationDto(Long id, Long userId, Long organizerId, String message, boolean read, LocalDateTime createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.organizerId = organizerId;
         this.message = message;
         this.read = read;
         this.createdAt = createdAt;
@@ -35,6 +45,14 @@ public class NotificationDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(Long organizerId) {
+        this.organizerId = organizerId;
     }
 
     public String getMessage() {

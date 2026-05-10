@@ -14,6 +14,7 @@ public class Notification implements Serializable {
 
     private Long id;
     private Long userId;
+    private Long organizerId;
     private String message;
     private boolean read;
     private LocalDateTime createdAt;
@@ -45,6 +46,14 @@ public class Notification implements Serializable {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(Long organizerId) {
+        this.organizerId = organizerId;
     }
 
     @Column(nullable = false)

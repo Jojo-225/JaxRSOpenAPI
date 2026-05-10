@@ -9,6 +9,7 @@ import fr.istic.taa.jaxrs.domain.Notification;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.notification.NotificationDto;
+import fr.istic.taa.jaxrs.dto.notification.NotificationPreferencesDto;
 import fr.istic.taa.jaxrs.dto.response.ArtistResponseDto;
 import fr.istic.taa.jaxrs.dto.response.ConcertResponseDto;
 import fr.istic.taa.jaxrs.dto.response.TicketResponseDto;
@@ -114,10 +115,26 @@ public final class ResponseMapper {
         return new NotificationDto(
                 notification.getId(),
                 notification.getUserId(),
+                notification.getOrganizerId(),
                 notification.getMessage(),
                 notification.isRead(),
                 notification.getCreatedAt()
         );
+    }
+
+    public static NotificationPreferencesDto toNotificationPreferencesDto(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+
+        List<Long> organizerIds = customer.getFollowedOrganizers() == null
+                ? Collections.emptyList()
+                : customer.getFollowedOrganizers().stream()
+                        .map(Organizer::getId)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+        return new NotificationPreferencesDto(customer.isNotifyAllOrganizers(), organizerIds);
     }
 
     private static String roleFromUser(User user) {

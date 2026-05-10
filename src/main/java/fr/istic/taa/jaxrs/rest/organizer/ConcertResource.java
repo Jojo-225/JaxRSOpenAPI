@@ -18,6 +18,7 @@ import fr.istic.taa.jaxrs.dto.response.OrganizerDashboardStatsDto;
 import fr.istic.taa.jaxrs.dto.response.OrganizerTicketSalesResponseDto;
 import fr.istic.taa.jaxrs.dto.response.TicketSaleHistoryItemDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.NotificationService;
 import fr.istic.taa.jaxrs.service.OrganizerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,6 +58,7 @@ public class ConcertResource {
     private final OrganizerDao organizerDao = new OrganizerDao();
     private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
     private final CurrentUserService currentUserService = new CurrentUserService();
+    private final NotificationService notificationService = new NotificationService();
     private final OrganizerStatsService organizerStatsService = new OrganizerStatsService();
 
     @GET
@@ -117,6 +119,7 @@ public class ConcertResource {
         concert.setDescription(dto.getDescription());
         concert.setOrganizer(organizer);
         concertDao.save(concert);
+        notificationService.createNewConcertNotification(concert, organizer);
 
         return Response.created(URI.create("/organise/concerts/" + concert.getId()))
                 .entity(ResponseMapper.toConcertDto(concert))
