@@ -32,6 +32,9 @@ public class DataInitializer {
     }
 
     public static void initializeIfEmpty() {
+        ensureTicketPriceColumnExists();
+        ensureTicketSaleColumnsExist();
+
         if (alreadyInitializedThisJvm.get()) {
             return;
         }
@@ -43,7 +46,77 @@ public class DataInitializer {
         initialize();
         alreadyInitializedThisJvm.set(true);
     }
- 
+
+    private static void ensureTicketPriceColumnExists() {
+        EntityManager manager = EntityManagerHelper.getEntityManager();
+        EntityTransaction tx = manager.getTransaction();
+
+        try {
+            if (!tx.isActive()) {
+                tx.begin();
+            }
+
+            manager.createNativeQuery("ALTER TABLE Ticket ADD COLUMN PRICE DOUBLE DEFAULT 0").executeUpdate();
+
+            tx.commit();
+            logger.info("Database schema update: PRICE column added to Ticket table.");
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            // Expected when column already exists; keep startup resilient.
+            logger.info("Database schema check: Ticket.PRICE already exists or cannot be added (" + e.getMessage() + ")");
+        }
+    }
+        private static void ensureTicketSaleColumnsExist() {
+            EntityManager manager = EntityManagerHelper.getEntityManager();
+
+            addColumnIfNotExists(
+                    manager,
+                    "ALTER TABLE TicketSale ADD COLUMN QUANTITY INTEGER DEFAULT 1",
+                    "TicketSale.QUANTITY"
+            );
+
+            addColumnIfNotExists(
+                    manager,
+                    "ALTER TABLE TicketSale ADD COLUMN TOTALPRICE DOUBLE DEFAULT 0",
+                    "TicketSale.TOTALPRICE"
+            );
+
+            addColumnIfNotExists(
+                    manager,
+                    "ALTER TABLE TicketSale ADD COLUMN REFERENCE VARCHAR(255)",
+                    "TicketSale.REFERENCE"
+            );
+
+            addColumnIfNotExists(
+                    manager,
+                    "ALTER TABLE TicketSale ADD COLUMN STATUS VARCHAR(255) DEFAULT 'PURCHASED'",
+                    "TicketSale.STATUS"
+            );
+     }
+    
+      private static void addColumnIfNotExists(EntityManager manager, String sql, String columnName) {
+            EntityTransaction tx = manager.getTransaction();
+
+            try {
+                if (!tx.isActive()) {
+                    tx.begin();
+                }
+
+                manager.createNativeQuery(sql).executeUpdate();
+
+                tx.commit();
+
+                logger.info("Database schema update: " + columnName + " column added.");
+            } catch (Exception e) {
+                if (tx.isActive()) {
+                    tx.rollback();
+                }
+
+                logger.info("Database schema check: " + columnName + " already exists or cannot be added (" + e.getMessage() + ")");
+            }
+        }
     private void _initialize() {
 
         EntityManager manager = EntityManagerHelper.getEntityManager();
@@ -67,7 +140,7 @@ public class DataInitializer {
 				artist.addConcert(concert);
 				manager.persist(artist);
 
-				Ticket ticket = new Ticket("Ticket standard", 100, "available", concert);
+				Ticket ticket = new Ticket("Ticket standard", 100, 49.99, "available", concert);
 				manager.persist(ticket);
 			}
 			

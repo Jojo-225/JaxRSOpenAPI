@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.istic.taa.jaxrs.filters.JWTAuthFilter;
+import fr.istic.taa.jaxrs.filters.CorsFilter;
 import fr.istic.taa.jaxrs.rest.AuthResource;
 import fr.istic.taa.jaxrs.rest.CustomerActionResource;
 import fr.istic.taa.jaxrs.rest.HomeResource;
@@ -102,6 +103,7 @@ public class TestApplication extends Application {
         clazzes.add(SwaggerResource.class);
         clazzes.add(AuthResource.class);
         clazzes.add(JWTAuthFilter.class);
+        clazzes.add(CorsFilter.class);
 //        clazzes.add(AcceptHeaderOpenApiResource.class);
          
 

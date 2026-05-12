@@ -7,6 +7,7 @@ public class TicketResponseDto {
     private Long id;
     private String title;
     private int capacity;
+    private double price;
     private String statut;
     private Long concertId;
     private List<Long> customerIds = new ArrayList<>();
@@ -14,10 +15,11 @@ public class TicketResponseDto {
     public TicketResponseDto() {
     }
 
-    public TicketResponseDto(Long id, String title, int capacity, String statut, Long concertId, List<Long> customerIds) {
+    public TicketResponseDto(Long id, String title, int capacity, double price, String statut, Long concertId, List<Long> customerIds) {
         this.id = id;
         this.title = title;
         this.capacity = capacity;
+        this.price = price;
         this.statut = statut;
         this.concertId = concertId;
         if (customerIds != null) {
@@ -47,6 +49,14 @@ public class TicketResponseDto {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getStatut() {

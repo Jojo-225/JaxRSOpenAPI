@@ -18,6 +18,7 @@ public class Ticket  implements Serializable{
     private Long id;
     private String title;
     private int capacity;
+    private double price;
     private String statut;
     private Concert concert;
     private List<Customer> customers = new ArrayList<>();
@@ -25,9 +26,10 @@ public class Ticket  implements Serializable{
     public Ticket() {
     }
     
-    public Ticket(String title, int capacity, String statut, Concert concert) {
+    public Ticket(String title, int capacity, double price, String statut, Concert concert) {
         this.title = title;
         this.capacity = capacity;
+        this.price = price;
         this.statut = statut;
         this.concert = concert;
     }
@@ -56,6 +58,14 @@ public class Ticket  implements Serializable{
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getStatut() {

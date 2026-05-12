@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.rest;
 import fr.istic.taa.jaxrs.domain.Concert;
+import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.service.ConcertService;
 import fr.istic.taa.jaxrs.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,11 +10,14 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+
 import java.util.stream.Collectors;
 import jakarta.ws.rs.PathParam;
 import java.util.Map;
 
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 @Path("/api")
 @Produces("application/json")
@@ -29,9 +33,9 @@ public class HomeResource {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of concerts")
     })
     public Response getLatestConcerts() {
-        return Response.ok(concertService.getLatestConcerts().stream()
+        return withCors(Response.ok(concertService.getLatestConcerts().stream()
             .map(ResponseMapper::toConcertDto)
-            .collect(Collectors.toList())).build();
+            .collect(Collectors.toList()))).build();
     }
 
     @GET    
@@ -40,9 +44,9 @@ public class HomeResource {
         @ApiResponse(responseCode = "200", description = "Successful retrieval of concerts")
     })
     public Response getIncomingConcerts() {
-        return Response.ok(concertService.getIncomingConcerts().stream()
+        return withCors(Response.ok(concertService.getIncomingConcerts().stream()
             .map(ResponseMapper::toConcertDto)
-            .collect(Collectors.toList())).build();
+            .collect(Collectors.toList()))).build();
     }
 
     @GET    
@@ -50,10 +54,10 @@ public class HomeResource {
     @Operation(summary = "Search concerts", description = "Returns a list of concerts matching the given criteria", responses = {
             @ApiResponse(responseCode = "200", description = "Successful retrieval of concerts")
     })
-    public Response getConcertsByCriteria(String topic, String date, String description, String artistName, String organizerName) {
-        return Response.ok(concertService.findConcertsByCriteria(topic, date, description, artistName, organizerName).stream()
+    public Response getConcertsByCriteria(@QueryParam("topic") String topic, @QueryParam("date") String date, @QueryParam("description") String description, @QueryParam("artistName") String artistName, @QueryParam("organizerName") String organizerName, @QueryParam("priceMin") Double priceMin, @QueryParam("priceMax") Double priceMax) {
+        return withCors(Response.ok(concertService.findConcertsByCriteria(topic, date, description, artistName, organizerName, priceMin, priceMax).stream()
             .map(ResponseMapper::toConcertDto)
-            .collect(Collectors.toList())).build();
+            .collect(Collectors.toList()))).build();
     }
 
     @GET
@@ -65,9 +69,23 @@ public class HomeResource {
     public Response getConcertById(@PathParam("id") Long id) {
         Concert concert = concertService.findOne(id);
         if (concert == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Concert not found")).build();
+            return withCors(Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Concert not found"))).build();
         }
-        return Response.ok(ResponseMapper.toConcertDto(concert)).build();
+        return withCors(Response.ok(ResponseMapper.toConcertDto(concert))).build();
+    }
+
+    @GET
+    @Path("/tickets/{id}")
+    @Operation(summary = "Get ticket by ID", description = "Returns a specific ticket by its ID", responses = {
+        @ApiResponse(responseCode = "200", description = "Successful retrieval of ticket"),
+        @ApiResponse(responseCode = "404", description = "Ticket not found")
+    })
+    public Response getTicketById(@PathParam("id") Long id) {
+        Ticket ticket = ticketService.findOne(id);
+        if (ticket == null) {
+            return withCors(Response.status(Response.Status.NOT_FOUND).entity(Map.of("error", "Ticket not found"))).build();
+        }
+        return withCors(Response.ok(ResponseMapper.toTicketDto(ticket))).build();
     }
 
     @GET    
@@ -77,9 +95,17 @@ public class HomeResource {
         @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     public Response getMyTickets() {
-        return Response.ok(ticketService.getMyTickets().stream()
+        return withCors(Response.ok(ticketService.getMyTickets().stream()
             .map(ResponseMapper::toTicketDto)
-            .collect(Collectors.toList())).build();
+            .collect(Collectors.toList()))).build();
+    }
+
+    private ResponseBuilder withCors(ResponseBuilder builder) {
+        return builder
+                .header("Access-Control-Allow-Origin", "http://localhost:4200")
+                .header("Vary", "Origin")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+                .header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
     }
     
 }

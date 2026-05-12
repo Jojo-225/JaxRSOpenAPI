@@ -6,17 +6,27 @@ public class OrganizerDashboardStatsDto {
     private long soldOutConcerts;
     private long ticketsSold;
     private long uniqueCustomers;
+    private double ticketRevenue;
+    private double averageBasket;
+    private long ticketsRemaining;
+    private double sellThroughRate;
 
     public OrganizerDashboardStatsDto() {
     }
 
     public OrganizerDashboardStatsDto(long totalConcerts, long upcomingConcerts, long soldOutConcerts,
-                                      long ticketsSold, long uniqueCustomers) {
+                                      long ticketsSold, long uniqueCustomers,
+                                      double ticketRevenue, double averageBasket,
+                                      long ticketsRemaining, double sellThroughRate) {
         this.totalConcerts = totalConcerts;
         this.upcomingConcerts = upcomingConcerts;
         this.soldOutConcerts = soldOutConcerts;
         this.ticketsSold = ticketsSold;
         this.uniqueCustomers = uniqueCustomers;
+        this.ticketRevenue = ticketRevenue;
+        this.averageBasket = averageBasket;
+        this.ticketsRemaining = ticketsRemaining;
+        this.sellThroughRate = sellThroughRate;
     }
 
     public long getTotalConcerts() {
@@ -58,5 +68,36 @@ public class OrganizerDashboardStatsDto {
     public void setUniqueCustomers(long uniqueCustomers) {
         this.uniqueCustomers = uniqueCustomers;
     }
-}
 
+    public double getTicketRevenue() {
+        return ticketRevenue;
+    }
+
+    public void setTicketRevenue(double ticketRevenue) {
+        this.ticketRevenue = ticketRevenue;
+    }
+
+    public double getAverageBasket() {
+        return averageBasket;
+    }
+
+    public void setAverageBasket(double averageBasket) {
+        this.averageBasket = averageBasket;
+    }
+
+    public long getTicketsRemaining() {
+        return ticketsRemaining;
+    }
+
+    public void setTicketsRemaining(long ticketsRemaining) {
+        this.ticketsRemaining = ticketsRemaining;
+    }
+
+    public double getSellThroughRate() {
+        return sellThroughRate;
+    }
+
+    public void setSellThroughRate(double sellThroughRate) {
+        this.sellThroughRate = sellThroughRate;
+    }
+}

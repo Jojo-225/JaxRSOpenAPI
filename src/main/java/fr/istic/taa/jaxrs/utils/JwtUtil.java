@@ -3,7 +3,6 @@ package fr.istic.taa.jaxrs.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.nio.charset.StandardCharsets;
@@ -19,6 +18,7 @@ public class JwtUtil {
 
     private static final String JWT_ISSUER = "concerts-app";
     private static final long JWT_LIFETIME_MS = 60 * 60 * 1000; // 1h
+    private static final String DEV_FALLBACK_SECRET = "concerts-app-dev-jwt-secret-change-me";
 
     /**
      * Use JWT_SECRET when available to keep tokens valid across restarts.
@@ -33,7 +33,9 @@ public class JwtUtil {
             // HS256 expects at least a 256-bit key.
             return Keys.hmacShaKeyFor(Arrays.copyOf(raw, 32));
         }
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        // Stable fallback for local development when JWT_SECRET is not provided.
+        byte[] raw = DEV_FALLBACK_SECRET.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(Arrays.copyOf(raw, 32));
     }
 
     public static class TokenPayload implements Principal {

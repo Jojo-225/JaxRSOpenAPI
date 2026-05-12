@@ -4,14 +4,16 @@ public class UpdateTicketDto{
 
     private String title;
     private Integer capacity;
+    private Double price;
     private String statut;
 
     public UpdateTicketDto() {
     }
     
-    public UpdateTicketDto(String title, Integer capacity, String statut) {
+    public UpdateTicketDto(String title, Integer capacity, Double price, String statut) {
         this.title = title;
         this.capacity = capacity;
+        this.price = price;
         this.statut = statut;
     }
 
@@ -29,6 +31,14 @@ public class UpdateTicketDto{
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public String getStatut() {

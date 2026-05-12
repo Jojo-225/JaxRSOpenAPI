@@ -2,16 +2,23 @@ package fr.istic.taa.jaxrs.rest.organizer;
 
 import fr.istic.taa.jaxrs.dao.ConcertDao;
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
+import fr.istic.taa.jaxrs.dao.TicketSaleDao;
+import fr.istic.taa.jaxrs.domain.Admin;
 import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Customer;
 import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.Ticket;
+import fr.istic.taa.jaxrs.domain.TicketSale;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.concert.CreateConcertDto;
 import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
+import fr.istic.taa.jaxrs.dto.response.ConcertTicketSalesSummaryDto;
 import fr.istic.taa.jaxrs.dto.response.OrganizerDashboardStatsDto;
+import fr.istic.taa.jaxrs.dto.response.OrganizerTicketSalesResponseDto;
+import fr.istic.taa.jaxrs.dto.response.TicketSaleHistoryItemDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.OrganizerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,6 +32,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -47,7 +55,9 @@ public class ConcertResource {
 
     private final ConcertDao concertDao = new ConcertDao();
     private final OrganizerDao organizerDao = new OrganizerDao();
+    private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
     private final CurrentUserService currentUserService = new CurrentUserService();
+    private final OrganizerStatsService organizerStatsService = new OrganizerStatsService();
 
     @GET
     @Path("/")
@@ -226,38 +236,96 @@ public class ConcertResource {
 
         List<Concert> concerts = organizerDao.findConcertsByOrganizerId(organizer.getId());
         LocalDateTime now = LocalDateTime.now();
-
-        long totalConcerts = concerts.size();
-        long upcomingConcerts = concerts.stream()
-                .filter(c -> c.getDate() != null && c.getDate().isAfter(now))
-                .count();
-
-        long soldOutConcerts = concerts.stream()
-                .filter(c -> !c.getTickets().isEmpty())
-                .filter(c -> c.getTickets().stream().allMatch(t -> t.getCapacity() <= 0 || "soldout".equalsIgnoreCase(t.getStatut())))
-                .count();
-
-        long ticketsSold = concerts.stream()
-                .flatMap(c -> c.getTickets().stream())
-                .mapToLong(t -> t.getCustomers().size())
-                .sum();
-
-        long uniqueCustomers = concerts.stream()
-                .flatMap(c -> c.getTickets().stream())
-                .flatMap(t -> t.getCustomers().stream())
-                .map(Customer::getId)
-                .distinct()
-                .count();
-
-        OrganizerDashboardStatsDto stats = new OrganizerDashboardStatsDto(
-                totalConcerts,
-                upcomingConcerts,
-                soldOutConcerts,
-                ticketsSold,
-                uniqueCustomers
-        );
+        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(concerts, now);
 
         return Response.ok(stats).build();
+    }
+
+    @GET
+    @Path("/sales/me")
+    @Operation(summary = "Get my ticket sales", description = "Returns ticket sales for the authenticated organizer", responses = {
+            @ApiResponse(responseCode = "200", description = "Ticket sales returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public Response getMyTicketSales(@Context SecurityContext securityContext) {
+        Organizer organizer = getAuthenticatedOrganizer(securityContext);
+        if (organizer == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        return Response.ok(buildSalesResponseForOrganizer(organizer.getId())).build();
+    }
+
+    @GET
+    @Path("/sales/me/history")
+    @Operation(summary = "Get my latest ticket sales history", description = "Returns latest sold tickets history for the authenticated organizer", responses = {
+            @ApiResponse(responseCode = "200", description = "Sales history returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    public Response getMyLatestSalesHistory(@QueryParam("limit") Integer limit,
+                                            @Context SecurityContext securityContext) {
+        Organizer organizer = getAuthenticatedOrganizer(securityContext);
+        if (organizer == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        int max = (limit == null || limit <= 0) ? 50 : Math.min(limit, 500);
+        List<TicketSaleHistoryItemDto> history = ticketSaleDao.findLatestByOrganizerId(organizer.getId(), max).stream()
+                .map(this::toSaleHistoryItem)
+                .collect(Collectors.toList());
+
+        return Response.ok(history).build();
+    }
+
+    @GET
+    @Path("/sales/organizer/{organizerId}")
+    @RolesAllowed({"ORGANIZER", "ADMIN"})
+    @Operation(summary = "Get ticket sales by organizer id", description = "Returns all ticket sales for concerts owned by the organizer id", responses = {
+            @ApiResponse(responseCode = "200", description = "Ticket sales returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Organizer not found")
+    })
+    public Response getTicketSalesByOrganizerId(@PathParam("organizerId") Long organizerId,
+                                                @Context SecurityContext securityContext) {
+        User currentUser = currentUserService.getCurrentUser(securityContext);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        boolean isAdmin = currentUser instanceof Admin;
+        boolean isSameOrganizer = currentUser instanceof Organizer && currentUser.getId().equals(organizerId);
+        if (!isAdmin && !isSameOrganizer) {
+            return Response.status(Response.Status.FORBIDDEN).entity("access denied for organizer id: " + organizerId).build();
+        }
+
+        Organizer organizer = organizerDao.findOne(organizerId);
+        if (organizer == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Organizer not found for id: " + organizerId).build();
+        }
+
+        return Response.ok(buildSalesResponseForOrganizer(organizerId)).build();
+    }
+
+    private OrganizerTicketSalesResponseDto buildSalesResponseForOrganizer(Long organizerId) {
+        List<Concert> concerts = organizerDao.findConcertsByOrganizerId(organizerId);
+        List<ConcertTicketSalesSummaryDto> concertSales = concerts.stream()
+                .map(this::toConcertSales)
+                .collect(Collectors.toList());
+
+        long totalTicketsSold = concertSales.stream().mapToLong(ConcertTicketSalesSummaryDto::getTicketsSold).sum();
+        double totalRevenue = round2(concertSales.stream().mapToDouble(ConcertTicketSalesSummaryDto::getRevenue).sum());
+        double averageTicketPrice = totalTicketsSold > 0 ? round2(totalRevenue / totalTicketsSold) : 0.0d;
+
+        OrganizerTicketSalesResponseDto response = new OrganizerTicketSalesResponseDto(
+                organizerId,
+                concerts.size(),
+                totalTicketsSold,
+                totalRevenue,
+                averageTicketPrice,
+                concertSales
+        );
+        return response;
     }
 
     private Organizer getAuthenticatedOrganizer(SecurityContext securityContext) {
@@ -272,5 +340,57 @@ public class ConcertResource {
         return concert.getOrganizer() != null
                 && concert.getOrganizer().getId() != null
                 && concert.getOrganizer().getId().equals(organizerId);
+    }
+
+    private ConcertTicketSalesSummaryDto toConcertSales(Concert concert) {
+        long ticketsSold = concert.getTickets().stream()
+                .mapToLong(t -> t.getCustomers().size())
+                .sum();
+
+        long uniqueCustomers = concert.getTickets().stream()
+                .flatMap(t -> t.getCustomers().stream())
+                .map(Customer::getId)
+                .distinct()
+                .count();
+
+        double revenue = round2(concert.getTickets().stream()
+                .mapToDouble(t -> t.getPrice() * t.getCustomers().size())
+                .sum());
+
+        return new ConcertTicketSalesSummaryDto(
+                concert.getId(),
+                concert.getTopic(),
+                concert.getDate(),
+                ticketsSold,
+                uniqueCustomers,
+                revenue
+        );
+    }
+
+    private double round2(double value) {
+        return Math.round(value * 100.0d) / 100.0d;
+    }
+
+    private TicketSaleHistoryItemDto toSaleHistoryItem(TicketSale sale) {
+        String customerName = sale.getCustomer() == null
+                ? null
+                : (safe(sale.getCustomer().getFirstName()) + " " + safe(sale.getCustomer().getLastName())).trim();
+
+        return new TicketSaleHistoryItemDto(
+                sale.getId(),
+                sale.getPurchaseDate(),
+                sale.getPriceAtPurchase(),
+                sale.getCustomer() != null ? sale.getCustomer().getId() : null,
+                customerName,
+                sale.getCustomer() != null ? sale.getCustomer().getMail() : null,
+                sale.getConcert() != null ? sale.getConcert().getId() : null,
+                sale.getConcert() != null ? sale.getConcert().getTopic() : null,
+                sale.getTicket() != null ? sale.getTicket().getId() : null,
+                sale.getTicket() != null ? sale.getTicket().getTitle() : null
+        );
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value;
     }
 }
