@@ -1,221 +1,113 @@
-# Concert Ticketing API (JAX-RS + OpenAPI)
+﻿# Concert Ticketing API
 
-API REST de gestion de concerts, billetterie et utilisateurs (admin, organisateur, customer), construite avec **JAX-RS (Resteasy)**, **Hibernate/JPA**, **HSQLDB**, et documentée avec **OpenAPI/Swagger**.
+API REST de gestion de concerts, billetterie et utilisateurs.
+Stack principale: JAX-RS (Resteasy), Hibernate/JPA, HSQLDB, Swagger/OpenAPI, JWT.
 
 ## Equipe
-
-Par :
-
 - Fulbert SOSSA
 - Eunice OYOTODE
 
-## Objectif
+## Etat actuel du projet
+- Auth JWT complete (`/api/auth/*`)
+- Espace public home/recherche (`/api/*`)
+- Espace customer (`/api/custom/*`)
+- Back-office organizer (`/organise/*`)
+- Admin/manage
+- Gestion des ventes de tickets (quantite, reference, historique)
+- Notifications internes (base + SSE)
+- SMTP configure par fichier `smtp.properties` (pour envoi mails - en cours sur branch alert)
 
-Le projet couvre:
+## Identifiants de test
+Ces comptes sont crees automatiquement par `DataInitializer` (si base vide):
 
-- authentification JWT (`/api/auth`),
-- actions client (profil, tickets, achat),
-- back-office organisateur (concerts, billets, artistes, dashboard),
-- endpoints d'administration.
+- Organizer:
+  - email: `organizer0@test.xyz`
+  - mot de passe: `password0`
+- Customer:
+  - email: `customer0@test.xyz`
+  - mot de passe: `password0`
 
-## Stack technique
+## Lancement rapide
+Voir le guide detaille: [install.md](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/install.md)
 
-- Java 15
-- Maven
-- JAX-RS / Resteasy (Jakarta)
-- Hibernate JPA
-- HSQLDB (local)
-- Swagger/OpenAPI v3
-- JWT (`jjwt`) + BCrypt
-
-## Architecture (vue rapide)
-
-`src/main/java/fr/istic/taa/jaxrs`:
-
-- `domain/`: entités métier (`User`, `Organizer`, `Concert`, `Ticket`, ...)
-- `dao/`: accès données JPA
-- `service/`: logique applicative
-- `dto/`: DTO requête/réponse + mappers
-- `filters/`: sécurité JWT (`JWTAuthFilter`)
-- `rest/`: ressources API (public, auth, customer actions)
-- `rest/organizer/`: back-office organisateur
-- `rest/manage/`: endpoints de gestion
-
-## Démarrage rapide
-
-Consulte le guide complet: [install.md](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/install.md)
-
-Commandes rapides:
-
-### Windows
-
+Windows:
 ```powershell
 .\run-all.bat
 ```
 
-### Linux/macOS
-
+Linux/macOS:
 ```bash
 chmod +x run-all.sh
 ./run-all.sh
 ```
 
-## URLs principales
-
+## URLs utiles
 - API: `http://localhost:8080`
 - OpenAPI JSON: `http://localhost:8080/openapi.json`
 - Swagger UI: `http://localhost:8080/api/docs`
 
 ## Authentification
+Login:
+- `POST /api/auth/login`
 
-### Login
-
-`POST /api/auth/login`
-
-Payload:
-
-```json
-{
-  "email": "organizer0@test.xyz",
-  "password": "password0"
-}
-```
-
-Réponse: token JWT + rôles.
-
-### En-tête requis
-
+Header pour routes protegees:
 ```http
 Authorization: Bearer <token>
 ```
 
-## Modules d'endpoints
+## Endpoints principaux
 
-## `Auth`
-
-Base path: `/api/auth`
-
+Auth (`/api/auth`)
 - `POST /login`
 - `POST /register`
 - `POST /logout`
 - `GET /me`
 - `GET /me/role`
 
-## `Home`
-
-Base path: `/api`
-
+Home public (`/api`)
 - `GET /latestConcerts`
 - `GET /incomingConcerts`
 - `GET /search`
-- `GET /{id}`
-- `GET /mytickets`
+- `GET /{id}` (concert detail)
+- `GET /tickets/{id}` (ticket detail)
 
-## `Customer Actions`
-
-Base path: `/api/custom`
-
+Customer (`/api/custom`)
 - `GET /profile`
 - `GET /mytickets`
+- `GET /my-purchases`
+- `GET /tickets/{id}`
 - `POST /buyticket`
+- `GET /notification-preferences`
+- `PUT /notification-preferences`
 
-Ces endpoints sont JWT-protégés.
-
-## `Organizer Back Office`
-
-### Dashboard
-
-Base path: `/organise/dashboard`
-
-- `GET /` (stats + concerts à venir + quick actions)
-
-### Concerts
-
-Base path: `/organise/concerts`
-
-- `GET /`
-- `GET /{id}`
-- `POST /`
-- `PUT /{id}`
-- `DELETE /{id}`
+Organizer (`/organise/concerts`)
+- CRUD concerts
 - `GET /{id}/customers`
 - `GET /upcoming`
 - `GET /stats/dashboard`
+- `GET /sales/me`
+- `GET /sales/me/history`
+- `GET /sales/organizer/{organizerId}`
 
-### Tickets
-
-Base path: `/organise/tickets`
-
-- `GET /`
-- `GET /{id}`
+Organizer tickets (`/organise/tickets`)
+- CRUD tickets
 - `GET /concert/{concertId}`
-- `POST /concert/{concertId}`
-- `POST /`
-- `PUT /{id}`
-- `DELETE /{id}`
+- `GET /stats/sales`
 
-### Artists
+Organizer artists (`/organise/artists`)
+- CRUD + liaison artiste/concert
 
-Base path: `/organise/artists`
+Notifications (`/notifications`)
+- create/list/read/read-all
+- stream SSE
 
-- `GET /`
-- `GET /{id}`
-- `GET /concert/{concertId}`
-- `POST /concert/{concertId}`
-- `POST /{artistId}/concert/{concertId}`
-- `PUT /{id}`
-- `DELETE /{artistId}/concert/{concertId}`
+## Configuration SMTP
+Fichier a remplir:
+- [smtp.properties](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/src/main/resources/smtp.properties)
 
-## `Manage`
+`EmailService` lit d'abord les variables d'environnement `SMTP_*`, sinon `smtp.properties`.
 
-- `/manage/admin`
-- `/organise/organizers`
-
-## Sécurité et rôles
-
-Le filtre JWT (`JWTAuthFilter`) protège les routes annotées `@RolesAllowed`.
-
-Rôles principaux:
-
-- `ADMIN`
-- `ORGANIZER`
-- `CUSTOMER`
-
-Le rôle utilisateur provient du type concret (`dtype`) et des claims JWT.
-
-## Données de démo
-
-Le projet initialise des données au démarrage en environnement dev:
-
-- admins (`adminX@test.xyz`)
-- organizers (`organizerX@test.xyz`)
-- customers (`customerX@test.xyz`)
-- concerts / artistes / tickets
-
-Mots de passe seed usuels: `password0`, `password1`, etc.
-
-## Configuration base de données
-
-Fichier: `src/main/resources/META-INF/persistence.xml`
-
-- `dev`: HSQLDB (`drop-and-create`)
-- `prod`: HSQLDB (`update`)
-- `mysql`: MySQL (`update`)
-
-## Scripts utilitaires
-
-- [run-all.bat](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/run-all.bat)
-- [run-all.sh](/c:/Users/fsossa/Desktop/M1_MIAGE/SIR/JaxRSOpenAPI/run-all.sh)
-- `run-hsqldb-server.bat/.sh`
-- `show-hsqldb.bat/.sh`
-
-## Vérification locale
-
+## Verification
 ```bash
 mvn -DskipTests compile
 ```
-
-## Remarques
-
-- Le projet est en évolution active (certaines routes peuvent être affinées au fur et à mesure du front).
-- Pour une clé JWT persistante entre redémarrages, définir `JWT_SECRET`.
