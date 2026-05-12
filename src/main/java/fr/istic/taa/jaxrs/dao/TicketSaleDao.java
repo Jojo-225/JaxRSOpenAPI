@@ -104,6 +104,16 @@ public class TicketSaleDao extends AbstractJpaDao<Long, TicketSale> {
                 .getResultList();
     }
 
+    public List<TicketSale> findByOrganizerId(Long organizerId) {
+        return this.entityManager
+                .createQuery(
+                        "SELECT s FROM TicketSale s WHERE s.concert.organizer.id = :organizerId ORDER BY s.purchaseDate DESC",
+                        TicketSale.class
+                )
+                .setParameter("organizerId", organizerId)
+                .getResultList();
+    }
+
     public List<TicketSale> findLatestByOrganizerId(Long organizerId, int limit) {
         return this.entityManager
                 .createQuery(
@@ -113,6 +123,32 @@ public class TicketSaleDao extends AbstractJpaDao<Long, TicketSale> {
                 .setParameter("organizerId", organizerId)
                 .setMaxResults(Math.max(limit, 0))
                 .getResultList();
+    }
+
+    public long countSoldTicketsByConcertId(Long concertId) {
+        // On additionne les quantites achetees, car une vente peut contenir plusieurs tickets.
+        Number result = this.entityManager
+                .createQuery(
+                        "SELECT COALESCE(SUM(s.quantity), 0) FROM TicketSale s WHERE s.concert.id = :concertId",
+                        Number.class
+                )
+                .setParameter("concertId", concertId)
+                .getSingleResult();
+
+        return result.longValue();
+    }
+
+    public long countRemainingTicketsByConcertId(Long concertId) {
+        // La capacite d'un ticket est decremente a chaque achat : elle correspond donc au stock restant.
+        Number result = this.entityManager
+                .createQuery(
+                        "SELECT COALESCE(SUM(t.capacity), 0) FROM Ticket t WHERE t.concert.id = :concertId",
+                        Number.class
+                )
+                .setParameter("concertId", concertId)
+                .getSingleResult();
+
+        return result.longValue();
     }
 
     private String generateReference(Ticket ticket, Customer customer, LocalDateTime now) {
