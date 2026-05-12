@@ -26,6 +26,13 @@ public class ConcertDao extends AbstractJpaDao<Long,Concert>{
         return query.getResultList();
     }
 
+    public List<Concert> findConcertsCreatedAfter(LocalDateTime createdAfter) {
+        return this.entityManager
+                .createQuery("SELECT c FROM Concert c WHERE c.createdAt >= :createdAfter ORDER BY c.createdAt ASC", Concert.class)
+                .setParameter("createdAfter", createdAfter)
+                .getResultList();
+    }
+
     // Critère pour trouver les concerts en fonction du topic, de la date, de la description,  du nom d'un artiste,  et ou d'un organisateur
  public List<Concert> findConcertsByCriteria(String topic,String date,String description,String artistName,String organizerName, Double priceMin,Double priceMax) {
     StringBuilder queryBuilder = new StringBuilder(

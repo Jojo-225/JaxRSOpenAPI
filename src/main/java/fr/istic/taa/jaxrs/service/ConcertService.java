@@ -7,6 +7,7 @@ import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.dto.concert.CreateConcertDto;
 import fr.istic.taa.jaxrs.dto.concert.UpdateConcertDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 public class ConcertService {
     private final ConcertDao concertDao =new ConcertDao();
@@ -21,6 +22,7 @@ public class ConcertService {
         concert.setTopic(createConcertDto.getTopic());
         concert.setDate(createConcertDto.getDate());
         concert.setDescription(createConcertDto.getDescription());
+        concert.setCreatedAt(LocalDateTime.now());
         concert.setOrganizer(organizer);
         concertDao.save(concert);
         return concert;

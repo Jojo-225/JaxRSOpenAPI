@@ -134,6 +134,7 @@ public class DataInitializer {
 				manager.persist(organizer);
 
 				Concert concert = new Concert("Concert "+i, LocalDateTime.now(), "Description du concert "+i, organizer);
+                concert.setCreatedAt(LocalDateTime.now());
 				manager.persist(concert);
 
 				Artist artist = new Artist("Artist "+i);

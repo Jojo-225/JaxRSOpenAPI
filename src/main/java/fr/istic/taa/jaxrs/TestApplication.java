@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import fr.istic.taa.jaxrs.filters.JWTAuthFilter;
 import fr.istic.taa.jaxrs.filters.CorsFilter;
 import fr.istic.taa.jaxrs.rest.AuthResource;
+import fr.istic.taa.jaxrs.rest.ConcertAlertResource;
 import fr.istic.taa.jaxrs.rest.CustomerActionResource;
 import fr.istic.taa.jaxrs.rest.HomeResource;
 import fr.istic.taa.jaxrs.rest.NotificationResource;
@@ -34,6 +35,7 @@ import fr.istic.taa.jaxrs.rest.organizer.DashboardResource;
 import fr.istic.taa.jaxrs.rest.organizer.TicketResource;
 import fr.istic.taa.jaxrs.rest.manage.AdminResource;
 import fr.istic.taa.jaxrs.rest.manage.OrganizerResource;
+import fr.istic.taa.jaxrs.service.ConcertAlertScheduler;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -52,6 +54,7 @@ public class TestApplication extends Application {
     public TestApplication() {
         // Initialisation automatique au démarrage de l'app
         DataInitializer.initializeIfEmpty();
+        ConcertAlertScheduler.getInstance().start();
 
         // Configuration de Swagger / OpenAPI
         OpenAPI oas = new OpenAPI();
@@ -96,6 +99,7 @@ public class TestApplication extends Application {
         clazzes.add(OrganizerResource.class);
         clazzes.add(HomeResource.class);
         clazzes.add(CustomerActionResource.class);
+        clazzes.add(ConcertAlertResource.class);
         clazzes.add(NotificationResource.class);
         clazzes.add(ConcertResource.class);
         clazzes.add(DashboardResource.class);

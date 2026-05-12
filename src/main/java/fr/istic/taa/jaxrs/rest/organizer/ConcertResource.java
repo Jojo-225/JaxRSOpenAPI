@@ -117,6 +117,7 @@ public class ConcertResource {
         concert.setTopic(dto.getTopic());
         concert.setDate(dto.getDate());
         concert.setDescription(dto.getDescription());
+        concert.setCreatedAt(LocalDateTime.now());
         concert.setOrganizer(organizer);
         concertDao.save(concert);
         notificationService.createNewConcertNotification(concert, organizer);
