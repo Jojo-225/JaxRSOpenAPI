@@ -37,6 +37,7 @@ Le projet fournit une API REST de billetterie de concerts avec:
 - profil,
 - mes tickets,
 - mes achats,
+- prochain concert a venir achete par le customer,
 - achat ticket (quantite),
 - preferences notification,
 - detail ticket.
@@ -107,4 +108,3 @@ Le projet est exploitable en demo complete pour:
 - achat de ticket,
 - back-office organizer,
 - statistiques et notifications.
-

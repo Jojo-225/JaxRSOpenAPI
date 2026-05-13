@@ -4,6 +4,7 @@ import fr.istic.taa.jaxrs.dao.CustomerDao;
 import fr.istic.taa.jaxrs.dao.TicketDao;
 import fr.istic.taa.jaxrs.dao.TicketSaleDao;
 import fr.istic.taa.jaxrs.domain.Customer;
+import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.TicketSale;
 import fr.istic.taa.jaxrs.domain.User;
@@ -32,6 +33,7 @@ import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.Map;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Path("/api/custom")
@@ -268,5 +270,50 @@ public Response myPurchases(@Context SecurityContext securityContext) {
                     .map(ResponseMapper::toTicketPurchaseDto)
                     .collect(Collectors.toList())
     ).build();
+}
+
+@GET
+@Path("/next-concert")
+@Operation(summary = "Get my next concert", description = "Returns the next upcoming concert already purchased by the authenticated customer", responses = {
+        @ApiResponse(responseCode = "200", description = "Next concert returned"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Only customers can access this action"),
+        @ApiResponse(responseCode = "404", description = "No upcoming purchased concert found")
+})
+public Response getMyNextConcert(@Context SecurityContext securityContext) {
+    User currentUser = currentUserService.getCurrentUser(securityContext);
+
+    if (currentUser == null) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(Map.of("error", "unauthorized"))
+                .build();
+    }
+
+    if (!(currentUser instanceof Customer)) {
+        return Response.status(Response.Status.FORBIDDEN)
+                .entity(Map.of("error", "This action is available only for customer accounts"))
+                .build();
+    }
+
+    Customer customer = (Customer) currentUser;
+    LocalDateTime now = LocalDateTime.now();
+
+    Concert nextConcert = ticketSaleDao.findByCustomerId(customer.getId()).stream()
+            .map(TicketSale::getConcert)
+            .filter(concert -> concert != null && concert.getId() != null && concert.getDate() != null)
+            .filter(concert -> concert.getDate().isAfter(now))
+            .collect(Collectors.toMap(Concert::getId, concert -> concert, (a, b) -> a))
+            .values()
+            .stream()
+            .min(Comparator.comparing(Concert::getDate))
+            .orElse(null);
+
+    if (nextConcert == null) {
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity(Map.of("error", "no upcoming purchased concert found"))
+                .build();
+    }
+
+    return Response.ok(ResponseMapper.toConcertDto(nextConcert)).build();
 }
 }

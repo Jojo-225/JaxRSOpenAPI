@@ -75,6 +75,7 @@ Customer (`/api/custom`)
 - `GET /profile`
 - `GET /mytickets`
 - `GET /my-purchases`
+- `GET /next-concert`
 - `GET /tickets/{id}`
 - `POST /buyticket`
 - `GET /notification-preferences`
