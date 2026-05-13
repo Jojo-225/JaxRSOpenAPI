@@ -1,6 +1,7 @@
 package fr.istic.taa.jaxrs.rest.organizer;
 
 import fr.istic.taa.jaxrs.dao.OrganizerDao;
+import fr.istic.taa.jaxrs.dao.TicketSaleDao;
 import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Organizer;
 import fr.istic.taa.jaxrs.domain.User;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 public class DashboardResource {
 
     private final OrganizerDao organizerDao = new OrganizerDao();
+    private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
     private final CurrentUserService currentUserService = new CurrentUserService();
     private final OrganizerStatsService organizerStatsService = new OrganizerStatsService();
 
@@ -62,7 +64,11 @@ public class DashboardResource {
                 .map(ResponseMapper::toConcertDto)
                 .collect(Collectors.toList());
 
-        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(concerts, now);
+        OrganizerDashboardStatsDto stats = organizerStatsService.buildDashboardStats(
+                concerts,
+                ticketSaleDao.findByOrganizerId(organizer.getId()),
+                now
+        );
 
         OrganizerDashboardDto dashboard = new OrganizerDashboardDto(
                 stats,

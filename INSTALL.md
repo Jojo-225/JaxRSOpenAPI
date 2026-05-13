@@ -1,156 +1,121 @@
-# Installation du projet
+﻿# Installation du projet
 
-Ce guide décrit l'installation et l'exécution locale de l'API **Concert Ticketing**.
+Ce guide decrit l'installation et l'execution locale de l'API Concert Ticketing.
 
-## 1. Prérequis
+## 1. Prerequis
+- Java 15
+- Maven 3.8+
+- Git
 
-- **Java 15** (le projet compile en source/target 15)
-- **Maven 3.8+**
-- **Git**
-- Système: Windows, Linux ou macOS
-
-Vérification rapide:
-
+Verification:
 ```bash
 java -version
 mvn -version
 ```
 
-## 2. Récupérer le projet
-
+## 2. Recuperer le projet
 ```bash
 git clone <url-du-repo>
 cd JaxRSOpenAPI
 ```
 
-## 3. Comprendre le mode base de données
+## 3. Base de donnees
+Le projet tourne en HSQLDB serveur local.
 
-Le projet utilise HSQLDB (mode serveur) en local.
+Configuration: `src/main/resources/META-INF/persistence.xml`
+- persistence unit `dev`
+- creation/mise a jour schema automatique
 
-Configuration JPA actuelle (fichier `src/main/resources/META-INF/persistence.xml`):
-
-- `persistence-unit dev`: `drop-and-create`
-- `persistence-unit prod`: `update`
-
-Conséquence:
-
-- Avec `dev`, le schéma est recréé au démarrage.
-- Les données de démonstration sont injectées automatiquement via `DataInitializer`.
+Au demarrage, `DataInitializer`:
+- cree les donnees seed si base vide,
+- applique des adaptations schema necessaires (ex: colonnes tickets/ticket sales).
 
 ## 4. Lancer en une commande
 
 ### Windows
-
 ```powershell
 .\run-all.bat
 ```
 
-Ce script:
-
-1. copie les dépendances Maven si besoin,
-2. démarre le serveur HSQLDB,
-3. ouvre le client graphique HSQLDB,
-4. lance `mvn jetty:run`.
-
 ### Linux/macOS
-
 ```bash
 chmod +x run-all.sh
 ./run-all.sh
 ```
 
-## 5. Lancement manuel (alternative)
+## 5. Lancement manuel
 
-### étape A - Copier les dépendances
-
+### A. Dependencies
 ```bash
 mvn dependency:copy-dependencies
 ```
 
-### étape B - Démarrer HSQLDB server
-
+### B. Demarrer HSQLDB
 ```bash
-# depuis la racine du projet
 mkdir -p data
 cd data
 java -cp ../target/dependency/hsqldb-2.7.2.jar org.hsqldb.Server
 ```
 
-### étape C - Ouvrir le client HSQLDB (optionnel)
-
-Depuis la racine du projet:
-
+### C. Ouvrir client HSQLDB (optionnel)
 ```bash
-java -cp ./target/dependency/hsqldb-2.7.2.jar org.hsqldb.util.DatabaseManagerSwing --driver org.hsqldb.jdbcDriver --url jdbc:hsqldb:hsql://localhost/ --user SA
+java -cp ../target/dependency/hsqldb-2.7.2.jar org.hsqldb.util.DatabaseManagerSwing --driver org.hsqldb.jdbcDriver --url jdbc:hsqldb:hsql://localhost/ --user SA
 ```
 
-### étape D - Démarrer l'API
-
+### D. Demarrer API
 ```bash
 mvn jetty:run
 ```
 
 ## 6. URLs utiles
-
 - API: `http://localhost:8080`
 - OpenAPI JSON: `http://localhost:8080/openapi.json`
 - Swagger UI: `http://localhost:8080/api/docs`
 
-## 7. Comptes seed (DataInitializer)
+## 7. Identifiants de test (prof)
+Comptes seed par defaut:
 
-Comptes générés automatiquement en dev:
+- Organizer
+  - email: `organizer0@test.xyz`
+  - mot de passe: `password0`
+- Customer
+  - email: `customer0@test.xyz`
+  - mot de passe: `password0`
 
-- Admin: `admin0@test.xyz` / `password0`
-- Organizer: `organizer0@test.xyz` / `password0`
-- Customer: `customer0@test.xyz` / `password0`
+(Autres comptes seed disponibles: `organizer1..4`, `customer1..49`, mots de passe `passwordX`.)
 
-Le mot de passe est stocké hashé (BCrypt), mais la valeur de connexion reste celle ci-dessus.
-
-## 8. Authentification JWT
-
-1. Appeler `POST /api/auth/login`
-2. Récupérer le token JWT
-3. Ajouter l'en-tête:
-
+## 8. Auth JWT
+1. `POST /api/auth/login`
+2. Recuperer le token
+3. Ajouter:
 ```http
 Authorization: Bearer <token>
 ```
 
-Optionnel: définir une clé JWT stable via variable d'environnement:
-
-```bash
-# Linux/macOS
-export JWT_SECRET="ma-cle-jwt-super-secrete"
-
-# Windows PowerShell
-$env:JWT_SECRET="ma-cle-jwt-super-secrete"
+Option recommande pour stabilite inter-redemarrage:
+```powershell
+$env:JWT_SECRET="votre-cle-jwt-stable"
 ```
 
-## 9. Vérifier la compilation
+## 9. Configuration SMTP (si envoi mail active)
+Remplir:
+- `src/main/resources/smtp.properties`
 
+Champs:
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_FROM`
+- `SMTP_AUTH`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `SMTP_STARTTLS`
+
+## 10. Verification
 ```bash
 mvn -DskipTests compile
 ```
 
-## 10. Dépannage rapide
-
-### Port 8080 déjà utilisé
-
-- Arrêter le processus qui utilise le port
-- ou changer le port dans `pom.xml` (configuration `jetty-maven-plugin`)
-
-### Swagger inaccessible
-
-Vérifier:
-
-- `http://localhost:8080/openapi.json`
-- `http://localhost:8080/api/docs`
-
-### Erreur base non joignable
-
-Vérifier que HSQLDB server tourne avant `mvn jetty:run`.
-
-## 11. Arrêt
-
-- Arrêter Jetty: `Ctrl+C` dans le terminal
-- Fermer les fenètres HSQLDB server/browser
+## 11. Depannage rapide
+- Port 8080 occupe: liberer le port ou modifier `pom.xml`.
+- Swagger inaccessible: verifier `/openapi.json` puis `/api/docs`.
+- DB non joignable: demarrer HSQLDB avant `mvn jetty:run`.

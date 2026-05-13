@@ -4,13 +4,16 @@ import fr.istic.taa.jaxrs.dao.CustomerDao;
 import fr.istic.taa.jaxrs.dao.TicketDao;
 import fr.istic.taa.jaxrs.dao.TicketSaleDao;
 import fr.istic.taa.jaxrs.domain.Customer;
+import fr.istic.taa.jaxrs.domain.Concert;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.TicketSale;
 import fr.istic.taa.jaxrs.domain.User;
 import fr.istic.taa.jaxrs.dto.mapper.ResponseMapper;
+import fr.istic.taa.jaxrs.dto.notification.NotificationPreferencesDto;
 import fr.istic.taa.jaxrs.dto.ticket.BuyTicketDto;
 import fr.istic.taa.jaxrs.dto.ticket.CustomerTicketPurchaseResponseDto;
 import fr.istic.taa.jaxrs.service.CurrentUserService;
+import fr.istic.taa.jaxrs.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,6 +22,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -29,6 +33,7 @@ import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.Map;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Path("/api/custom")
@@ -43,6 +48,7 @@ public class CustomerActionResource {
     private final CustomerDao customerDao = new CustomerDao();
     private final TicketDao ticketDao = new TicketDao();
     private final TicketSaleDao ticketSaleDao = new TicketSaleDao();
+    private final NotificationService notificationService = new NotificationService();
 
     @GET
     @Path("/profile")
@@ -80,6 +86,59 @@ public class CustomerActionResource {
         return Response.ok(customerDao.findTicketsByCustomerId(customer.getId()).stream()
                 .map(ResponseMapper::toTicketDto)
                 .collect(Collectors.toList())).build();
+    }
+
+    @GET
+    @Path("/notification-preferences")
+    @Operation(summary = "Get notification preferences", description = "Returns new-concert notification preferences for the authenticated customer", responses = {
+            @ApiResponse(responseCode = "200", description = "Preferences returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Only customers can access this action")
+    })
+    public Response getNotificationPreferences(@Context SecurityContext securityContext) {
+        User currentUser = currentUserService.getCurrentUser(securityContext);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(Map.of("error", "unauthorized")).build();
+        }
+        if (!(currentUser instanceof Customer)) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(Map.of("error", "This action is available only for customer accounts"))
+                    .build();
+        }
+
+        Customer customer = customerDao.findWithNotificationPreferences(currentUser.getId());
+        return Response.ok(ResponseMapper.toNotificationPreferencesDto(customer)).build();
+    }
+
+    @PUT
+    @Path("/notification-preferences")
+    @Operation(summary = "Update notification preferences", description = "Updates new-concert notification preferences for the authenticated customer", responses = {
+            @ApiResponse(responseCode = "200", description = "Preferences updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Only customers can access this action")
+    })
+    public Response updateNotificationPreferences(NotificationPreferencesDto dto, @Context SecurityContext securityContext) {
+        User currentUser = currentUserService.getCurrentUser(securityContext);
+        if (currentUser == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(Map.of("error", "unauthorized")).build();
+        }
+        if (!(currentUser instanceof Customer)) {
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(Map.of("error", "This action is available only for customer accounts"))
+                    .build();
+        }
+        if (dto == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", "preferences are required")).build();
+        }
+
+        Customer customer = customerDao.updateNotificationPreferences(
+                currentUser.getId(),
+                dto.isNotifyAllOrganizers(),
+                dto.getOrganizerIds()
+        );
+
+        return Response.ok(ResponseMapper.toNotificationPreferencesDto(customer)).build();
     }
 
     @GET
@@ -145,6 +204,7 @@ public class CustomerActionResource {
 
     try {
         TicketSale sale = ticketSaleDao.buyTicket(customer.getId(), dto.getTicketId(), quantity);
+        notificationService.createTicketSaleNotification(sale);
 
         CustomerTicketPurchaseResponseDto responseDto = ResponseMapper.toTicketPurchaseDto(sale);
 
@@ -210,5 +270,50 @@ public Response myPurchases(@Context SecurityContext securityContext) {
                     .map(ResponseMapper::toTicketPurchaseDto)
                     .collect(Collectors.toList())
     ).build();
+}
+
+@GET
+@Path("/next-concert")
+@Operation(summary = "Get my next concert", description = "Returns the next upcoming concert already purchased by the authenticated customer", responses = {
+        @ApiResponse(responseCode = "200", description = "Next concert returned"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Only customers can access this action"),
+        @ApiResponse(responseCode = "404", description = "No upcoming purchased concert found")
+})
+public Response getMyNextConcert(@Context SecurityContext securityContext) {
+    User currentUser = currentUserService.getCurrentUser(securityContext);
+
+    if (currentUser == null) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(Map.of("error", "unauthorized"))
+                .build();
+    }
+
+    if (!(currentUser instanceof Customer)) {
+        return Response.status(Response.Status.FORBIDDEN)
+                .entity(Map.of("error", "This action is available only for customer accounts"))
+                .build();
+    }
+
+    Customer customer = (Customer) currentUser;
+    LocalDateTime now = LocalDateTime.now();
+
+    Concert nextConcert = ticketSaleDao.findByCustomerId(customer.getId()).stream()
+            .map(TicketSale::getConcert)
+            .filter(concert -> concert != null && concert.getId() != null && concert.getDate() != null)
+            .filter(concert -> concert.getDate().isAfter(now))
+            .collect(Collectors.toMap(Concert::getId, concert -> concert, (a, b) -> a))
+            .values()
+            .stream()
+            .min(Comparator.comparing(Concert::getDate))
+            .orElse(null);
+
+    if (nextConcert == null) {
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity(Map.of("error", "no upcoming purchased concert found"))
+                .build();
+    }
+
+    return Response.ok(ResponseMapper.toConcertDto(nextConcert)).build();
 }
 }
